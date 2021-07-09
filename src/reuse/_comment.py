@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2019 Free Software Foundation Europe e.V. <https://fsfe.org>
 # SPDX-FileCopyrightText: 2019 Kirill Elagin
 # SPDX-FileCopyrightText: 2020 Dmitry Bogatov
-# SPDX-FileCopyrightText: 2021 Alliander N.V.
+# SPDX-FileCopyrightText: 2021 Alliander N.V. <https://alliander.com>
 # SPDX-FileCopyrightText: 2021 Alvar Penning
+# SPDX-FileCopyrightText: 2021 Robin Vobruba <hoijui.quaero@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -326,6 +327,14 @@ class FortranCommentStyle(CommentStyle):
     INDENT_AFTER_SINGLE = " "
 
 
+class HandlebarsCommentStyle(CommentStyle):
+    """Handlebars comment style."""
+
+    _shorthand = "handlebars"
+
+    MULTI_LINE = ("{{!--", "", "--}}")
+
+
 class HaskellCommentStyle(CommentStyle):
     """Haskell comment style."""
 
@@ -437,17 +446,20 @@ class UncommentableCommentStyle(EmptyCommentStyle):
 #: A map of (common) file extensions against comment types.
 EXTENSION_COMMENT_STYLE_MAP = {
     ".adb": HaskellCommentStyle,
+    ".adoc": CCommentStyle,
     ".ads": HaskellCommentStyle,
     ".ahk": LispCommentStyle,
     ".ahkl": LispCommentStyle,
+    ".applescript": AppleScriptCommentStyle,
     ".asax": AspxCommentStyle,
+    ".asc": CCommentStyle,
+    ".asciidoc": CCommentStyle,
     ".ashx": AspxCommentStyle,
     ".asmx": AspxCommentStyle,
     ".aspx": AspxCommentStyle,
     ".aux": TexCommentStyle,
     ".awk": PythonCommentStyle,
     ".axd": AspxCommentStyle,
-    ".applescript": AppleScriptCommentStyle,
     ".bash": PythonCommentStyle,
     ".bat": BatchFileCommentStyle,
     ".bb": PythonCommentStyle,
@@ -463,31 +475,37 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".coffee": PythonCommentStyle,
     ".cpp": CCommentStyle,
     ".cs": CCommentStyle,
+    ".csl": HtmlCommentStyle,  # Bibliography (XML based)
     ".css": CssCommentStyle,
     ".csv": UncommentableCommentStyle,
     ".d": CCommentStyle,
     ".dart": CCommentStyle,
     ".di": CCommentStyle,
+    ".doc": UncommentableCommentStyle,
+    ".docx": UncommentableCommentStyle,
+    ".dotx": UncommentableCommentStyle,
     ".dts": CCommentStyle,
     ".dtsi": CCommentStyle,
     ".el": LispCommentStyle,
     ".erl": TexCommentStyle,
     ".ex": PythonCommentStyle,
     ".exs": PythonCommentStyle,
-    ".F": FortranCommentStyle,
-    ".F90": FortranCommentStyle,
+    ".f": FortranCommentStyle,
+    ".f03": FortranCommentStyle,
     ".f90": FortranCommentStyle,
     ".f95": FortranCommentStyle,
-    ".f03": FortranCommentStyle,
-    ".f": FortranCommentStyle,
-    ".for": FortranCommentStyle,
     ".fish": PythonCommentStyle,
+    ".fodp": UncommentableCommentStyle,
+    ".fods": UncommentableCommentStyle,
+    ".fodt": UncommentableCommentStyle,
+    ".for": FortranCommentStyle,
     ".fs": CCommentStyle,
     ".gemspec": PythonCommentStyle,
     ".go": CCommentStyle,
     ".gradle": CCommentStyle,
     ".groovy": CCommentStyle,
     ".h": CCommentStyle,
+    ".hbs": HandlebarsCommentStyle,
     ".hpp": CCommentStyle,
     ".hrl": TexCommentStyle,
     ".hs": HaskellCommentStyle,
@@ -519,12 +537,24 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".mjs": CCommentStyle,
     ".mk": PythonCommentStyle,
     ".ml": MlCommentStyle,
-    ".ML": MlCommentStyle,
     ".mli": MlCommentStyle,
+    ".nim.cfg": PythonCommentStyle,  # Nim-lang build config parameters/settings
     ".nim": PythonCommentStyle,
+    ".nimble": PythonCommentStyle,  # Nim-lang build config
     ".nimrod": PythonCommentStyle,
     ".nix": PythonCommentStyle,
+    ".odb": UncommentableCommentStyle,
+    ".odf": UncommentableCommentStyle,
+    ".odg": UncommentableCommentStyle,
+    ".odm": UncommentableCommentStyle,
+    ".odp": UncommentableCommentStyle,
+    ".ods": UncommentableCommentStyle,
+    ".odt": UncommentableCommentStyle,
     ".org": PythonCommentStyle,
+    ".otp": UncommentableCommentStyle,
+    ".ots": UncommentableCommentStyle,
+    ".ott": UncommentableCommentStyle,
+    ".pdf": UncommentableCommentStyle,
     ".php": CCommentStyle,
     ".php3": CCommentStyle,
     ".php4": CCommentStyle,
@@ -532,34 +562,40 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".pl": PythonCommentStyle,
     ".plantuml": PlantUmlCommentStyle,
     ".po": PythonCommentStyle,
+    ".pod": PythonCommentStyle,
     ".pot": PythonCommentStyle,
+    ".ppt": UncommentableCommentStyle,
+    ".pptx": UncommentableCommentStyle,
     ".ps1": PythonCommentStyle,  # TODO: Multiline comments
     ".psm1": PythonCommentStyle,  # TODO: Multiline comments
     ".pu": PlantUmlCommentStyle,
     ".puml": PlantUmlCommentStyle,
+    ".pxd": PythonCommentStyle,
     ".py": PythonCommentStyle,
     ".pyi": PythonCommentStyle,
     ".pyw": PythonCommentStyle,
     ".pyx": PythonCommentStyle,
-    ".pxd": PythonCommentStyle,
     ".qbs": CCommentStyle,
     ".qml": CCommentStyle,
     ".R": PythonCommentStyle,
-    ".Rmd": HtmlCommentStyle,
     ".rake": PythonCommentStyle,
     ".rb": PythonCommentStyle,
     ".rbw": PythonCommentStyle,
     ".rbx": PythonCommentStyle,
     ".rkt": LispCommentStyle,
+    ".Rmd": HtmlCommentStyle,
     ".rs": CCommentStyle,
     ".rss": HtmlCommentStyle,
     ".rst": ReStructedTextCommentStyle,
     ".sass": CssCommentStyle,
+    ".sc": CCommentStyle,  # SuperCollider source file
+    ".scad": CCommentStyle,
     ".scala": PythonCommentStyle,
     ".scm": LispCommentStyle,
     ".scpt": AppleScriptCommentStyle,
     ".scptd": AppleScriptCommentStyle,
     ".scss": CssCommentStyle,
+    ".scsyndef": UncommentableCommentStyle,  # SuperCollider synth definition (binary)
     ".sh": PythonCommentStyle,
     ".sml": MlCommentStyle,
     ".sql": HaskellCommentStyle,
@@ -572,13 +608,21 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".toml": PythonCommentStyle,
     ".ts": CCommentStyle,
     ".tsx": JsxCommentStyle,
+    ".ttl": PythonCommentStyle,  # Turtle/RDF
     ".vala": CCommentStyle,
+    ".xls": UncommentableCommentStyle,
+    ".xlsx": UncommentableCommentStyle,
     ".xml": HtmlCommentStyle,
+    ".xsd": HtmlCommentStyle,
     ".xsh": PythonCommentStyle,
-    ".xsl": PythonCommentStyle,
+    ".xsl": HtmlCommentStyle,
     ".yaml": PythonCommentStyle,
     ".yml": PythonCommentStyle,
     ".zsh": PythonCommentStyle,
+}
+
+EXTENSION_COMMENT_STYLE_MAP_LOWERCASE = {
+    k.lower(): v for k, v in EXTENSION_COMMENT_STYLE_MAP.items()
 }
 
 FILENAME_COMMENT_STYLE_MAP = {
@@ -590,26 +634,34 @@ FILENAME_COMMENT_STYLE_MAP = {
     ".gitignore": PythonCommentStyle,
     ".gitmodules": PythonCommentStyle,
     ".mailmap": PythonCommentStyle,
+    ".mdlrc": PythonCommentStyle,  # Markdown-linter config
     ".pylintrc": PythonCommentStyle,
     ".Renviron": PythonCommentStyle,
     ".Rprofile": PythonCommentStyle,
+    "archive.sctxar": UncommentableCommentStyle,  # SuperCollider global archive
     "CMakeLists.txt": PythonCommentStyle,
+    "configure.ac": M4CommentStyle,
     "Dockerfile": PythonCommentStyle,
     "Gemfile": PythonCommentStyle,
-    "Jenkinsfile": CCommentStyle,
-    "Makefile": PythonCommentStyle,
-    "Makefile.am": PythonCommentStyle,
-    "MANIFEST.in": PythonCommentStyle,
-    "Rakefile": PythonCommentStyle,
-    "ROOT": MlCommentStyle,
-    "configure.ac": M4CommentStyle,
     "go.mod": CCommentStyle,
     "go.sum": UncommentableCommentStyle,
+    "gradle-wrapper.properties": PythonCommentStyle,
+    "gradlew": PythonCommentStyle,
+    "Jenkinsfile": CCommentStyle,
+    "Makefile.am": PythonCommentStyle,
+    "Makefile": PythonCommentStyle,
+    "MANIFEST.in": PythonCommentStyle,
     "manifest": PythonCommentStyle,  # used by cdist
     "meson.build": PythonCommentStyle,
+    "Rakefile": PythonCommentStyle,
     "requirements.txt": PythonCommentStyle,
+    "ROOT": MlCommentStyle,
     "setup.cfg": PythonCommentStyle,
     "sonar-project.properties": PythonCommentStyle,
+}
+
+FILENAME_COMMENT_STYLE_MAP_LOWERCASE = {
+    k.lower(): v for k, v in FILENAME_COMMENT_STYLE_MAP.items()
 }
 
 

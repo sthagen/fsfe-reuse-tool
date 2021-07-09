@@ -39,26 +39,75 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Added
 
+- More file types are recognised:
+  - Perl plain old documentation (`.pod`)
+  - Portable document format (`.pdf`)
+  - Open Document Format (`.odt`, `.ods`, `.fodp` and many more)
+  - MS Office (`.doc`, `.xls`, `.pptx` and many more)
+  - SuperCollider (`.sc`, `.scsyndef`)
+  - Bibliography (`.csl`)
+  - Turtle/RDF (`.ttl`)
+  - Nimble (`.nim.cfg`, `.nimble`)
+  - Markdown-linter config (`.mdlrc`)
+  - AsciiDoc (`.adoc`, `.asc`, `.asciidoc`)
+  - Handlebars (`.hbs`)
+
+- More file names are recognised:
+  - SuperCollider (`archive.sctxar`)
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Fix faulty file types:
+  - Extensible Stylesheet Language (`.xsl`) actually uses HTML comment syntax
+
+### Security
+
+## 0.13.0 - 2021-06-11
+
+### Added
+
 - `addheader` recognises file types that specifically require .license files
   instead of headers using `UncommentableCommentStyle`. (#189)
 
 - `.hgtags` is ignored. (#227)
 
+- `spdx-symbol` added to possible copyright styles. (#350)
+
+- `addheader` ignores case when matching file extensions and names. (#359)
+
+- Provide `latest-debian` as Docker Hub tag, created by `Dockerfile-debian`. (#321)
+
 - More file types are recognised:
 
-  - .mjs
-  - .ipynb
-  - .svg
-  - .json
-  - .csv
-  - .rkt
-  - .org
+  - Javascript modules (`.mjs`)
+  - Jupyter Notebook (`.ipynb`)
+  - Scalable Vector Graphics (`.svg`)
+  - JSON (`.json`)
+  - Comma-separated values (`.csv`)
+  - Racket (`.rkt`)
+  - Org-mode (`.org`)
+  - LaTeX package files (`.sty`)
+  - devicetree (`.dts`, `.dtsi`)
+  - Bitbake (.bb, .bbappend, .bbclass)
+  - XML schemas (`.xsd`)
+  - OpenSCAD (`.scad`)
 
 - More file names are recognised:
-  - .bashrc
-  - .coveragerc
-  - Jenkinsfile
-  - sonar-project.properties
+  - Bash configuration (`.bashrc`)
+  - Coverage.py (`.coveragerc`)
+  - Jenkins (`Jenkinsfile`)
+  - SonarScanner (`sonar-project.properties`)
+  - Gradle (`gradle-wrapper.properties`, `gradlew`)
+
+### Changed
+
+- Bump `alpine` Docker base image to 3.13. (#369)
 
 ### Fixed
 
@@ -74,6 +123,12 @@ The versions follow [semantic versioning](https://semver.org).
   of only writeable. (#241)
 
 - `addheader` now preserves line endings. (#308)
+
+- `download` does no longer fail when both `--output` and `--all` are used. (#326)
+
+- Catch erroneous SPDX expressions. (#331)
+
+- Updated SPDX license list to 3.13.
 
 ## 0.12.1 - 2020-12-17
 

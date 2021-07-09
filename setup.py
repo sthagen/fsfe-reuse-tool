@@ -32,13 +32,15 @@ requirements = [
     "Jinja2",
     # Exactly what it says.
     "binaryornot",
+    # For pkg_resources
+    "setuptools",
 ]
 
 test_requirements = ["pytest"]
 
 setup_requirements = ["setuptools_scm"]
 
-fallback_version = "0.12.1"
+fallback_version = "0.13.0"
 
 
 def readme_md():

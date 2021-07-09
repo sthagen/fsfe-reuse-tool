@@ -97,7 +97,7 @@ For full functionality, the following pieces of software are recommended:
 There are packages available for easy install on some operating systems. You are
 welcome to help us package this tool for more distributions!
 
-- Arch Linux (AUR): [reuse](https://aur.archlinux.org/packages/reuse/)
+- Arch Linux: [reuse](https://archlinux.org/packages/community/any/reuse/)
 - Fedora: [reuse](https://apps.fedoraproject.org/packages/reuse)
 - openSUSE: [reuse](https://software.opensuse.org/package/reuse)
 - GNU Guix: [reuse](https://guix.gnu.org/packages/reuse-0.5.0/)
@@ -172,14 +172,22 @@ mount it on the container's `/data` directory, and tell the tool to lint. That
 looks a little like this:
 
 ```bash
-docker run --volume $(pwd):/data fsfe/reuse lint
+docker run --rm --volume $(pwd):/data fsfe/reuse lint
 ```
 
 You can also provide additional arguments, like so:
 
 ```bash
-docker run --volume $(pwd):/data fsfe/reuse --include-submodules spdx -o out.spdx
+docker run --rm --volume $(pwd):/data fsfe/reuse --include-submodules spdx -o out.spdx
 ```
+
+There are a number of tags available:
+- `latest` is the most recent stable release.
+- `dev` follows the `master` branch of this repository. Up-to-date, but
+  potentially unstable.
+- `latest-extra` has a few extra packages installed, currently `openssh-client`.
+- `latest-debian` is based on `python:slim`. It is larger, but may be better
+  suited for license compliance.
 
 ### Run as pre-commit hook
 
@@ -203,6 +211,7 @@ an error.
 ## Maintainers
 
 - Carmen Bianca Bakker - <carmenbianca@fsfe.org>
+- Max Mehl - <max.mehl@fsfe.org>
 
 ## Contribute
 
