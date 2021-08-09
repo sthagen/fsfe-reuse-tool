@@ -51,6 +51,7 @@ The versions follow [semantic versioning](https://semver.org).
   - Markdown-linter config (`.mdlrc`)
   - AsciiDoc (`.adoc`, `.asc`, `.asciidoc`)
   - Handlebars (`.hbs`)
+  - Vue.js (`.vue`)
 
 - More file names are recognised:
   - SuperCollider (`archive.sctxar`)
@@ -65,6 +66,7 @@ The versions follow [semantic versioning](https://semver.org).
 
 - Fix faulty file types:
   - Extensible Stylesheet Language (`.xsl`) actually uses HTML comment syntax
+- Allow creating .license file for write-protected files (#347)
 
 ### Security
 
