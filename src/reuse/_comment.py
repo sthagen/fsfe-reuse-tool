@@ -503,6 +503,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".gemspec": PythonCommentStyle,
     ".go": CCommentStyle,
     ".gradle": CCommentStyle,
+    ".graphql": PythonCommentStyle,
     ".groovy": CCommentStyle,
     ".h": CCommentStyle,
     ".hbs": HandlebarsCommentStyle,
@@ -566,6 +567,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".pot": PythonCommentStyle,
     ".ppt": UncommentableCommentStyle,
     ".pptx": UncommentableCommentStyle,
+    ".proto": CCommentStyle,
     ".ps1": PythonCommentStyle,  # TODO: Multiline comments
     ".psm1": PythonCommentStyle,  # TODO: Multiline comments
     ".pu": PlantUmlCommentStyle,
