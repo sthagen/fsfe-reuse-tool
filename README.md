@@ -10,6 +10,7 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 [![Information on what versions of Python reuse supports can be found on PyPI.](https://img.shields.io/pypi/pyversions/reuse.svg)](https://pypi.python.org/pypi/reuse)
 [![REUSE status](https://api.reuse.software/badge/github.com/fsfe/reuse-tool)](https://api.reuse.software/info/github.com/fsfe/reuse-tool)
 [![readme style standard](https://img.shields.io/badge/readme_style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
+[![Packaging status](https://repology.org/badge/tiny-repos/reuse.svg?header=in%20distro%20repos)](https://repology.org/project/reuse/versions)
 
 > reuse is a tool for compliance with the [REUSE](https://reuse.software/)
 > recommendations.
@@ -62,6 +63,23 @@ In this screencast, we are going to follow the
 
 ## Install
 
+### Installation via package managers
+
+There are packages available for easy install on some operating systems. You are
+welcome to help us package this tool for more distributions!
+
+- Arch Linux: [reuse](https://archlinux.org/packages/community/any/reuse/)
+- Debian: [reuse](https://packages.debian.org/search?keywords=reuse&exact=1)
+- GNU Guix: [reuse](https://guix.gnu.org/packages/reuse-0.13.0/)
+- Fedora: [reuse](https://apps.fedoraproject.org/packages/reuse)
+- NixOS: [reuse](https://search.nixos.org/packages?channel=21.05&from=0&size=50&sort=relevance&type=packages&query=reuse)
+- openSUSE: [reuse](https://software.opensuse.org/package/reuse)
+- VoidLinux: [reuse](https://voidlinux.org/packages/?arch=x86_64&q=reuse)
+
+An automatically generated list can be found at
+[repology.org](https://repology.org/project/reuse/versions), without any
+guarantee for completeness.
+
 ### Installation via pip
 
 To install reuse, you need to have the following pieces of software on your
@@ -91,17 +109,6 @@ For full functionality, the following pieces of software are recommended:
 
 - Git
 - Mercurial 4.3+
-
-### Installation via package managers
-
-There are packages available for easy install on some operating systems. You are
-welcome to help us package this tool for more distributions!
-
-- Arch Linux: [reuse](https://archlinux.org/packages/community/any/reuse/)
-- Fedora: [reuse](https://apps.fedoraproject.org/packages/reuse)
-- openSUSE: [reuse](https://software.opensuse.org/package/reuse)
-- GNU Guix: [reuse](https://guix.gnu.org/packages/reuse-0.13.0/)
-- NixOS: [reuse](https://search.nixos.org/packages?channel=21.05&from=0&size=50&sort=relevance&type=packages&query=reuse)
 
 ### Installation from source
 
