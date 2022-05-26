@@ -39,6 +39,10 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Added
 
+- More file types are recognised:
+
+  - Kotlin script (`.kts`)
+
 ### Changed
 
 - Updated PyPI development status to 'production/stable' (#381)
@@ -48,6 +52,8 @@ The versions follow [semantic versioning](https://semver.org).
 ### Removed
 
 ### Fixed
+
+- Sanitize xargs input in scripts documentation
 
 ### Security
 
