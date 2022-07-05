@@ -43,10 +43,12 @@ The versions follow [semantic versioning](https://semver.org).
 
   - Kotlin script (`.kts`)
   - Android Interface Definition Language (`.aidl`)
+  - Certificate files (`.pem`)
 
 ### Changed
 
 - Updated PyPI development status to 'production/stable' (#381)
+- Updated versions of pre-commit check packages
 
 ### Deprecated
 
