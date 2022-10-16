@@ -72,6 +72,7 @@ welcome to help us package this tool for more distributions!
 - Debian: [reuse](https://packages.debian.org/search?keywords=reuse&exact=1)
 - GNU Guix: [reuse](https://guix.gnu.org/packages/reuse-0.14.0/)
 - Fedora: [reuse](https://apps.fedoraproject.org/packages/reuse)
+- MacPorts: [reuse](https://ports.macports.org/port/reuse/)
 - NixOS:
   [reuse](https://search.nixos.org/packages?channel=21.05&from=0&size=50&sort=relevance&type=packages&query=reuse)
 - openSUSE: [reuse](https://software.opensuse.org/package/reuse)
@@ -218,7 +219,7 @@ docker run --rm --volume $(pwd):/data fsfe/reuse --include-submodules spdx -o ou
 There are a number of tags available:
 
 - `latest` is the most recent stable release.
-- `dev` follows the `master` branch of this repository. Up-to-date, but
+- `dev` follows the `main` branch of this repository. Up-to-date, but
   potentially unstable.
 - `latest-extra` has a few extra packages installed, currently `openssh-client`.
 - `latest-debian` is based on `python:slim`. It is larger, but may be better

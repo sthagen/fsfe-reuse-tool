@@ -39,11 +39,17 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Added
 
+- Add support for XQuery comment style.
 - More file types are recognised:
 
   - Kotlin script (`.kts`)
   - Android Interface Definition Language (`.aidl`)
   - Certificate files (`.pem`)
+  - XQuery script and module files (`.xq(l|m|y|uery|)`)
+
+- Added comment style:
+
+  - Apache Velocity Template (Extensions: `.vm`, `.vtl`)
 
 ### Changed
 
@@ -60,7 +66,8 @@ The versions follow [semantic versioning](https://semver.org).
 - Sanitize xargs input in scripts documentation
 - License identifiers in comments with symmetrical ASCII art frames are now
   properly detected (#560)
-
+- Fixed an error where copyright statements contained within a multi-line
+  comment style on a single line could not be parsed (#593).
 - In PHP files, add header after `<?php` (#543).
 
 ### Security
