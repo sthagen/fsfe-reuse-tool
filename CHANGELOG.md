@@ -39,7 +39,10 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Added
 
+- Added support for Python 3.11. (#603)
+
 - Add support for XQuery comment style.
+
 - More file types are recognised:
 
   - Kotlin script (`.kts`)
@@ -59,6 +62,8 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Changed
 
+- Removed `setup.py` and replaced it with a Poetry configuration. Maintainers
+  beware. (#600)
 - Updated PyPI development status to 'production/stable' (#381)
 - Updated versions of pre-commit check packages
 - The pre-commit hook now passes `lint` as an overridable argument
@@ -67,8 +72,18 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Removed
 
+- `setup.py`. (#600)
+- Releases to PyPI are no longer GPG-signed. Support for this is not present in
+  Poetry and not planned. (#600)
+- Dependency on `requests` removed; using `urllib.request` from the standard
+  library instead. (#600)
+
 ### Fixed
 
+- Repair tests related to CVE-2022-39253 changes in upstream Git. New versions
+  of Git no longer allow `git submodule add repository path` where repository is
+  a file. A flag was added to explicitly allow this in the test framework.
+  (#619)
 - Sanitize xargs input in scripts documentation
 - License identifiers in comments with symmetrical ASCII art frames are now
   properly detected (#560)
