@@ -178,7 +178,7 @@ Congratulations! Your project is compliant with version 3.0 of the REUSE Specifi
 This tool can do various more things, detailed in the documentation. Here a
 short summary:
 
-- `addheader` --- Add copyright and/or licensing information to the header of a
+- `annotate` --- Add copyright and/or licensing information to the header of a
   file.
 
 - `download` --- Download the specified license into the `LICENSES/` directory.
@@ -235,7 +235,7 @@ Git. This uses [pre-commit](https://pre-commit.com/). Once you
 ```yaml
 repos:
   - repo: https://github.com/fsfe/reuse-tool
-    rev: v1.0.0
+    rev: v1.1.0
     hooks:
       - id: reuse
 ```
