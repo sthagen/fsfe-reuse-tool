@@ -36,7 +36,10 @@ with the ``--root`` optional argument.
 Git submodules are automatically ignored unless ``--include-submodules`` is
 passed as optional argument.
 
-Symbolically links and files that are zero-sized are automatically ignored.
+Meson subprojects are automatically ignored if ``meson.build`` exists in the
+project root. ``--include-meson-subprojects`` overrides this behaviour.
+
+Symbolic links and files that are zero-sized are automatically ignored.
 
 annotate
 ========
@@ -131,20 +134,7 @@ Comment styles
 The tool normally tries to auto-detect the comment style to use from the file
 extension of a file, and use that comment style. If the tool is unable to detect
 the comment style, or if it detects the wrong style, you can override the style
-using ``--style``. The supported styles are:
-
-- AppleScript
-- ASPX
-- BibTex
-- C
-- CSS
-- Haskell
-- HTML
-- Jinja
-- JSX
-- ML
-- Python
-- TeX
+using ``--style``. The list of styles can be found in :doc:`api/reuse.comment`.
 
 If your comment style is not supported or a file extension is not correctly
 detected, please `open an issue <https://github.com/fsfe/reuse-tool/issues>`_.
