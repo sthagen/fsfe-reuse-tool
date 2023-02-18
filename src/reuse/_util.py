@@ -95,6 +95,7 @@ _COPYRIGHT_PATTERNS = [
 
 _COPYRIGHT_STYLES = {
     "spdx": "SPDX-FileCopyrightText:",
+    "spdx-c": "SPDX-FileCopyrightText: (C)",
     "spdx-symbol": "SPDX-FileCopyrightText: ©",
     "string": "Copyright",
     "string-c": "Copyright (C)",
@@ -371,8 +372,9 @@ def make_copyright_line(
     copyright_prefix = _COPYRIGHT_STYLES.get(copyright_style)
     if copyright_prefix is None:
         raise RuntimeError(
-            "Unexpected copyright style: Need 'spdx', 'spdx-symbol', 'string', "
-            "'string-c', 'string-symbol' or 'symbol'"
+            "Unexpected copyright style: Need 'spdx', 'spdx-c', "
+            "'spdx-symbol', 'string', 'string-c', "
+            "'string-symbol', or 'symbol'"
         )
 
     for pattern in _COPYRIGHT_PATTERNS:
@@ -422,7 +424,6 @@ class PathType:
         raise ArgumentTypeError(_("can't open '{}'").format(path))
 
     def _check_write(self, path):
-        # pylint: disable=no-self-use
         if path.is_dir():
             raise ArgumentTypeError(
                 _("can't write to directory '{}'").format(path)
