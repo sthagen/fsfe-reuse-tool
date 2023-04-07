@@ -39,18 +39,23 @@ The versions follow [semantic versioning](https://semver.org).
 
 ### Added
 
+- Detect SPDX snippet tags in files. (#699)
 - More file types are recognised:
   - Fennel (`.fnl`) (#638)
   - CommonJS (`.cjs`) (#632)
   - Qt .pro (`.pro`) (#632)
+  - Textile (`.textile`) (#712)
 - More files are recognised:
   - Clang format (`.clang-format`) (#632)
 - Added loglevel argument to pytest and skip one test if loglevel is too high
   (#645).
+- `--add-license-concluded`, `--creator-person`, and `--creator-organization`
+  added to `reuse spdx`. (#623)
 
 ### Changed
 
 - Bumped SPDX license list to v3.20. (#692)
+- Sphinx documentation: Switched from RTD theme to Furo. (#673, #716)
 
 ### Deprecated
 
@@ -62,6 +67,12 @@ The versions follow [semantic versioning](https://semver.org).
 
 - Fixed automatic generation of Sphinx documentation via readthedocs.io by
   adding a `.readthedocs.yaml` configuration file (#648)
+- Fixed a compatibility issue where reuse could not be installed (built) if
+  gettext is not installed. (#691)
+- Translations are available in Docker images. (#701)
+- Marked the `/data` directory in Docker containers as safe in Git, preventing
+  errors related to linting Git repositories. (#720)
+- Repaired error when using Galician translations. (#719)
 
 ### Security
 

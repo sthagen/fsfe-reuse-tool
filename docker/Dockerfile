@@ -4,14 +4,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Create a base image that has dependencies installed.
-FROM alpine:3.16 AS base
+FROM alpine:3.17 AS base
 
 RUN apk --no-cache add git mercurial python3
 
 # Build reuse into a virtualenv
 FROM base AS build
 
-RUN apk --no-cache add poetry
+RUN apk --no-cache add poetry gettext
 
 WORKDIR /reuse-tool
 COPY . /reuse-tool/
@@ -31,6 +31,7 @@ COPY --from=build /opt/venv /opt/venv
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+RUN git config --global --add safe.directory /data
 WORKDIR /data
 
 ENTRYPOINT ["reuse"]
