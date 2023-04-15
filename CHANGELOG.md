@@ -1,6 +1,7 @@
 <!--
 SPDX-FileCopyrightText: 2017 Free Software Foundation Europe e.V. <https://fsfe.org>
 SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
+SPDX-FileCopyrightText: 2023 DB Systel GmbH
 
 SPDX-License-Identifier: CC-BY-SA-4.0
 -->
@@ -17,7 +18,9 @@ Every release contains the following sections:
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities.
 
-The versions follow [semantic versioning](https://semver.org).
+The versions follow [semantic versioning](https://semver.org) for the `reuse`
+CLI command and its behaviour. There are no guarantees of stability for the
+`reuse` Python library.
 
 <!--
 ## Unreleased - YYYY-MM-DD
@@ -51,6 +54,9 @@ The versions follow [semantic versioning](https://semver.org).
   (#645).
 - `--add-license-concluded`, `--creator-person`, and `--creator-organization`
   added to `reuse spdx`. (#623)
+- Additional license metadata for the Python package has been added. The actual
+  SPDX license expression remains the same:
+  `Apache-2.0 AND CC0-1.0 AND CC-BY-SA-4.0 AND GPL-3.0-or-later`. (#733)
 
 ### Changed
 
