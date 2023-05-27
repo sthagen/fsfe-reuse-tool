@@ -11,6 +11,7 @@
 # SPDX-FileCopyrightText: 2022 Carmen Bianca Bakker <carmenbianca@fsfe.org>
 # SPDX-FileCopyrightText: 2022 Sebastian Crane <seabass@fsfe.org>
 # SPDX-FileCopyrightText: 2023 Redradix S.L. <info@redradix.com>
+# SPDX-FileCopyrightText: 2023 Kevin Meagher
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -497,6 +498,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".ahkl": LispCommentStyle,
     ".aidl": CCommentStyle,
     ".applescript": AppleScriptCommentStyle,
+    ".arb": UncommentableCommentStyle,
     ".asax": AspxCommentStyle,
     ".asc": CCommentStyle,
     ".asciidoc": CCommentStyle,
@@ -520,12 +522,14 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".cljc": LispCommentStyle,
     ".cljs": LispCommentStyle,
     ".cmake": PythonCommentStyle,  # TODO: Bracket comments not supported.
+    ".code-workspace": CCommentStyle,
     ".coffee": PythonCommentStyle,
     ".cpp": CCommentStyle,
     ".cs": CCommentStyle,
     ".csl": HtmlCommentStyle,  # Bibliography (XML based)
     ".css": CssCommentStyle,
     ".csv": UncommentableCommentStyle,
+    ".cxx": CCommentStyle,
     ".d": CCommentStyle,
     ".dart": CCommentStyle,
     ".di": CCommentStyle,
@@ -712,6 +716,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     ".gitignore": PythonCommentStyle,
     ".gitmodules": PythonCommentStyle,
     ".mailmap": PythonCommentStyle,
+    ".metadata": UncommentableCommentStyle,
     ".mdlrc": PythonCommentStyle,  # Markdown-linter config
     ".npmignore": PythonCommentStyle,
     ".prettierrc": UncommentableCommentStyle,  # could either be JSON or YAML
@@ -741,6 +746,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     "manifest": PythonCommentStyle,  # used by cdist
     "meson.build": PythonCommentStyle,
     "meson_options.txt": PythonCommentStyle,
+    "pubspec.lock": UncommentableCommentStyle,
     "Rakefile": PythonCommentStyle,
     "requirements.txt": PythonCommentStyle,
     "ROOT": MlCommentStyle,
