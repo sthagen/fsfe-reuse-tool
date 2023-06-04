@@ -6,6 +6,7 @@
 # SPDX-FileCopyrightText: 2022 Carmen Bianca Bakker <carmenbianca@fsfe.org>
 # SPDX-FileCopyrightText: 2022 Pietro Albini <pietro.albini@ferrous-systems.com>
 # SPDX-FileCopyrightText: 2023 DB Systel GmbH
+# SPDX-FileCopyrightText: 2023 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -31,7 +32,7 @@ from boolean.boolean import Expression, ParseError
 from debian.copyright import Copyright
 from license_expression import ExpressionError, Licensing
 
-from . import SpdxInfo
+from . import ReuseInfo
 from ._licenses import ALL_NON_DEPRECATED_MAP
 from .comment import _all_style_classes
 
@@ -81,17 +82,17 @@ _IDENTIFIER_PATTERN = re.compile(
 _COPYRIGHT_PATTERNS = [
     re.compile(
         r"(?P<copyright>(?P<prefix>SPDX-(File|Snippet)CopyrightText:)\s+"
-        r"((?P<year>\d{4} - \d{4}|\d{4}),?\s+)?"
+        r"((?P<year>\d{4} ?- ?\d{4}|\d{4}),?\s+)?"
         r"(?P<statement>.*?))" + _END_PATTERN
     ),
     re.compile(
         r"(?P<copyright>(?P<prefix>Copyright(\s?\([cC]\))?)\s+"
-        r"((?P<year>\d{4} - \d{4}|\d{4}),?\s+)?"
+        r"((?P<year>\d{4} ?- ?\d{4}|\d{4}),?\s+)?"
         r"(?P<statement>.*?))" + _END_PATTERN
     ),
     re.compile(
         r"(?P<copyright>(?P<prefix>©)\s+"
-        r"((?P<year>\d{4} - \d{4}|\d{4}),?\s+)?"
+        r"((?P<year>\d{4} ?- ?\d{4}|\d{4}),?\s+)?"
         r"(?P<statement>.*?))" + _END_PATTERN
     ),
 ]
@@ -203,16 +204,19 @@ def _determine_license_suffix_path(path: PathLike) -> Path:
     return Path(f"{path}.license")
 
 
-def _copyright_from_dep5(path: PathLike, dep5_copyright: Copyright) -> SpdxInfo:
+def _copyright_from_dep5(
+    path: PathLike, dep5_copyright: Copyright
+) -> ReuseInfo:
     """Find the reuse information of *path* in the dep5 Copyright object."""
     result = dep5_copyright.find_files_paragraph(Path(path).as_posix())
 
     if result is None:
-        return SpdxInfo(set(), set())
+        return ReuseInfo(set(), set(), source_path=str(path))
 
-    return SpdxInfo(
+    return ReuseInfo(
         set(map(_LICENSING.parse, [result.license.synopsis])),
         set(map(str.strip, result.copyright.splitlines())),
+        source_path=str(path),
     )
 
 
@@ -222,7 +226,7 @@ def _parse_copyright_year(year: str) -> list:
         ret = []
     if re.match(r"\d{4}$", year):
         ret = [int(year)]
-    if re.match(r"\d{4} - \d{4}$", year):
+    if re.match(r"\d{4} ?- ?\d{4}$", year):
         ret = [int(year[:4]), int(year[-4:])]
     return ret
 
@@ -289,7 +293,7 @@ def merge_copyright_lines(copyright_lines: Set[str]) -> Set[str]:
     return copyright_out
 
 
-def extract_spdx_info(text: str) -> SpdxInfo:
+def extract_spdx_info(text: str) -> ReuseInfo:
     """Extract SPDX information from comments in a string.
 
     :raises ExpressionError: if an SPDX expression could not be parsed
@@ -316,7 +320,7 @@ def extract_spdx_info(text: str) -> SpdxInfo:
                 copyright_matches.add(match.groupdict()["copyright"].strip())
                 break
 
-    return SpdxInfo(expressions, copyright_matches)
+    return ReuseInfo(expressions, copyright_matches, "")
 
 
 def find_license_identifiers(text: str) -> Iterator[str]:
