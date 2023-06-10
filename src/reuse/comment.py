@@ -12,6 +12,7 @@
 # SPDX-FileCopyrightText: 2022 Sebastian Crane <seabass@fsfe.org>
 # SPDX-FileCopyrightText: 2023 Redradix S.L. <info@redradix.com>
 # SPDX-FileCopyrightText: 2023 Kevin Meagher
+# SPDX-FileCopyrightText: 2023 Mathias Dannesbo <md@magenta.dk>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -494,6 +495,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".adb": HaskellCommentStyle,
     ".adoc": CCommentStyle,
     ".ads": HaskellCommentStyle,
+    ".aes": UncommentableCommentStyle,
     ".ahk": LispCommentStyle,
     ".ahkl": LispCommentStyle,
     ".aidl": CCommentStyle,
@@ -562,6 +564,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".h": CCommentStyle,
     ".ha": CCommentStyle,
     ".hbs": HandlebarsCommentStyle,
+    ".hcl": PythonCommentStyle,
     ".hh": CCommentStyle,
     ".hpp": CCommentStyle,
     ".hrl": TexCommentStyle,
@@ -578,6 +581,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".jinja2": JinjaCommentStyle,
     ".js": CCommentStyle,
     ".json": UncommentableCommentStyle,
+    ".jsp": AspxCommentStyle,
     ".jsx": CCommentStyle,
     ".jy": PythonCommentStyle,
     ".ksh": PythonCommentStyle,
@@ -626,6 +630,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".pot": PythonCommentStyle,
     ".ppt": UncommentableCommentStyle,
     ".pptx": UncommentableCommentStyle,
+    ".pri": PythonCommentStyle,
     ".pro": PythonCommentStyle,
     ".proto": CCommentStyle,
     ".ps1": PythonCommentStyle,  # TODO: Multiline comments
@@ -639,6 +644,8 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".pyx": PythonCommentStyle,
     ".qbs": CCommentStyle,
     ".qml": CCommentStyle,
+    ".qrc": UncommentableCommentStyle,
+    ".qss": CssCommentStyle,
     ".R": PythonCommentStyle,
     ".rake": PythonCommentStyle,
     ".rb": PythonCommentStyle,
@@ -670,12 +677,15 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".swift": CCommentStyle,
     ".tex": TexCommentStyle,
     ".textile": HtmlCommentStyle,
+    ".tf": PythonCommentStyle,
+    ".tfvars": PythonCommentStyle,
     ".thy": MlCommentStyle,
     ".toc": TexCommentStyle,
     ".toml": PythonCommentStyle,
     ".ts": CCommentStyle,
     ".tsx": CCommentStyle,
     ".ttl": PythonCommentStyle,  # Turtle/RDF
+    ".ui": UncommentableCommentStyle,
     ".v": CCommentStyle,  # V-Lang source code
     ".vala": CCommentStyle,
     ".vim": VimCommentStyle,
