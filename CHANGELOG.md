@@ -57,7 +57,6 @@ CLI command and its behaviour. There are no guarantees of stability for the
   - Svelte components (`.svelte`)
   - AES encrypted files (`.aes`) (#758)
   - Jakarte Server Page (`.jsp`) (#757)
-- More files are recognised:
   - Clang format (`.clang-format`) (#632)
   - Browserslist config (`.browserslist`)
   - Prettier config (`.prettierrc`) and ignored files (`.prettierignore`)
@@ -73,22 +72,35 @@ CLI command and its behaviour. There are no guarantees of stability for the
   `Apache-2.0 AND CC0-1.0 AND CC-BY-SA-4.0 AND GPL-3.0-or-later`. (#733)
 - Added `--contributor` option to `annotate`. (#669)
 - Added `--json` flag to `lint` command (#654).
+- `reuse.ReuseInfo` now has `copy` and `union` methods. (#759)
+- Added Ukrainian and Czech translations (#767)
+- Added `--suppress-deprecation` to hide (verbose) deprecation warnings. (#778)
 
 ### Changed
 
 - Bumped SPDX license list to v3.20. (#692)
-- `reuse.SpdxInfo` is now a (frozen) dataclass instead of a namedtuple. This is
-  only relevant if you're using reuse as a library in Python. (#669)
+- `reuse.SpdxInfo` was renamed to `reuse.ReuseInfo`. It is now a (frozen)
+  dataclass instead of a namedtuple. This is only relevant if you're using reuse
+  as a library in Python. (#669)
 - Sphinx documentation: Switched from RTD theme to Furo. (#673, #716)
 - Removed dependency on setuptools' `pkg_resources` to determine the installed
-  version of reuse. For Python <3.8, a dependency on `importlib-metadata` is
-  added. (#724)
+  version of reuse. (#724)
+- Bumped SPDX license list to v3.21. (#763)
+- Bumped REUSE Spec version to 3.1. (#768)
 
 ### Deprecated
 
+- Pending deprecation of aggregation of file sources. Presently, when copyright
+  and licensing information is defined both within e.g. the file itself and in
+  the DEP5 file, then the information is merged or aggregated for the purposes
+  of linting and BOM generation. In the future, this will no longer be the case
+  unless explicitly defined. The exact mechanism for this is not yet concrete,
+  but a `PendingDeprecationWarning` will be shown to the user to make them aware
+  of this. (#778)
+
 ### Removed
 
-- Python 3.6 support has been dropped. (#673)
+- Python 3.6 and 3.7 support has been dropped. (#673, #759)
 - Removed runtime and build time dependency on `setuptools`. (#724)
 
 ### Fixed
@@ -103,6 +115,21 @@ CLI command and its behaviour. There are no guarantees of stability for the
 - Repaired error when using Galician translations. (#719)
 
 ### Security
+
+## 2.0.0 - 2023-06-21 [YANKED]
+
+This version was yanked because of an unanticipated workflow that we broke. The
+breaking change is the fact that an order of precedence was defined for
+copyright and licensing information sources. For instance, if a file contained
+the `SPDX-License-Identifier` tag, and if that file was also (explicitly or
+implicitly) covered by DEP5, then the information from the DEP5 setting would no
+longer apply to that file.
+
+While the intention of the breaking change was sound (don't mix information
+sources; define a single source of truth), there were legitimate use-cases that
+were broken as a result of this.
+
+Apologies to everyone whose CI broke. We'll get this one right before long.
 
 ## 1.1.2 - 2023-02-09
 

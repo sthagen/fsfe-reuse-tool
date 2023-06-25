@@ -9,8 +9,9 @@
 import argparse
 import logging
 import sys
+import warnings
 from gettext import gettext as _
-from typing import List
+from typing import IO, Callable, List, Optional, Type, cast
 
 from . import (
     __REUSE_version__,
@@ -67,6 +68,11 @@ def parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--debug", action="store_true", help=_("enable debug statements")
+    )
+    parser.add_argument(
+        "--suppress-deprecation",
+        action="store_true",
+        help=_("hide deprecation warnings"),
     )
     parser.add_argument(
         "--include-submodules",
@@ -238,14 +244,14 @@ def parser() -> argparse.ArgumentParser:
 
 
 def add_command(  # pylint: disable=too-many-arguments,redefined-builtin
-    subparsers,
+    subparsers: argparse._SubParsersAction,
     name: str,
-    add_arguments_func,
-    run_func,
-    formatter_class=None,
-    description: str = None,
-    help: str = None,
-    aliases: list = None,
+    add_arguments_func: Callable[[argparse.ArgumentParser], None],
+    run_func: Callable[[argparse.Namespace, Project, IO[str]], int],
+    formatter_class: Optional[Type[argparse.HelpFormatter]] = None,
+    description: Optional[str] = None,
+    help: Optional[str] = None,
+    aliases: Optional[List[str]] = None,
 ) -> None:
     """Add a subparser for a command."""
     if formatter_class is None:
@@ -262,15 +268,18 @@ def add_command(  # pylint: disable=too-many-arguments,redefined-builtin
     subparser.set_defaults(parser=subparser)
 
 
-def main(args: List[str] = None, out=sys.stdout) -> int:
+def main(args: Optional[List[str]] = None, out: IO[str] = sys.stdout) -> int:
     """Main entry function."""
     if args is None:
-        args = sys.argv[1:]
+        args = cast(List[str], sys.argv[1:])
 
     main_parser = parser()
     parsed_args = main_parser.parse_args(args)
 
     setup_logging(level=logging.DEBUG if parsed_args.debug else logging.WARNING)
+    # Show all warnings raised by ourselves.
+    if not parsed_args.suppress_deprecation:
+        warnings.filterwarnings("default", module="reuse")
 
     if parsed_args.version:
         out.write(f"reuse {__version__}\n")

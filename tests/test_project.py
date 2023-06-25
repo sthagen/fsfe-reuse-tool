@@ -8,6 +8,8 @@
 
 import os
 import shutil
+import warnings
+from importlib import import_module
 from inspect import cleandoc
 from pathlib import Path
 from textwrap import dedent
@@ -18,11 +20,11 @@ from license_expression import LicenseSymbol
 from reuse.project import Project
 
 try:
-    import posix as is_posix
+    IS_POSIX = bool(import_module("posix"))
 except ImportError:
-    is_posix = False
+    IS_POSIX = False
 
-posix = pytest.mark.skipif(not is_posix, reason="Windows not supported")
+posix = pytest.mark.skipif(not IS_POSIX, reason="Windows not supported")
 
 TESTS_DIRECTORY = Path(__file__).parent.resolve()
 RESOURCES_DIRECTORY = TESTS_DIRECTORY / "resources"
@@ -202,7 +204,7 @@ def test_all_files_hg_ignored_contains_newline(hg_repository):
 
 
 def test_reuse_info_of_file_does_not_exist(fake_repository):
-    """Raise FileNotFoundError when asking for the SPDX info of a file that
+    """Raise FileNotFoundError when asking for the REUSE info of a file that
     does not exist.
     """
     project = Project(fake_repository)
@@ -220,8 +222,8 @@ def test_reuse_info_of_directory(empty_directory):
 
 
 def test_reuse_info_of_unlicensed_file(fake_repository):
-    """Return an empty SpdxInfo object when asking for the SPDX information
-    of a file that has no SPDX information.
+    """Return an empty ReuseInfo object when asking for the REUSE information
+    of a file that has no REUSE information.
     """
     (fake_repository / "foo.py").write_text("foo")
     project = Project(fake_repository)
@@ -245,24 +247,10 @@ def test_reuse_info_of_only_copyright(fake_repository):
     )
 
 
-def test_reuse_info_of_only_copyright_also_covered_by_debian(fake_repository):
-    """A file contains only a copyright line, but debian/copyright also has
-    information on this file. Use only the information from file header.
-    """
-    (fake_repository / "doc/foo.py").write_text(
-        "SPDX-FileCopyrightText: in file"
-    )
-    project = Project(fake_repository)
-    reuse_info = project.reuse_info_of("doc/foo.py")
-
-    assert len(reuse_info.copyright_lines) == 1
-    assert "SPDX-FileCopyrightText: in file" in reuse_info.copyright_lines
-
-
 def test_reuse_info_of_also_covered_by_dep5(fake_repository):
-    """A file contains all SPDX information, but .reuse/dep5 also
-    provides information on this file. Use only the information
-    from the file header.
+    """A file contains all REUSE information, but .reuse/dep5 also
+    provides information on this file. Aggregate the information (for now), and
+    expect a PendingDeprecationWarning.
     """
     (fake_repository / "doc/foo.py").write_text(
         dedent(
@@ -272,15 +260,21 @@ def test_reuse_info_of_also_covered_by_dep5(fake_repository):
         )
     )
     project = Project(fake_repository)
-    reuse_info = project.reuse_info_of("doc/foo.py")
-    assert LicenseSymbol("MIT") in reuse_info.spdx_expressions
-    assert LicenseSymbol("CC0-1.0") not in reuse_info.spdx_expressions
-    assert "SPDX-FileCopyrightText: in file" in reuse_info.copyright_lines
-    assert "2017 Jane Doe" not in reuse_info.copyright_lines
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        reuse_info = project.reuse_info_of("doc/foo.py")
+        assert LicenseSymbol("MIT") in reuse_info.spdx_expressions
+        assert LicenseSymbol("CC0-1.0") in reuse_info.spdx_expressions
+        assert "SPDX-FileCopyrightText: in file" in reuse_info.copyright_lines
+        assert "2017 Jane Doe" in reuse_info.copyright_lines
+
+        assert len(caught_warnings) == 1
+        assert issubclass(
+            caught_warnings[0].category, PendingDeprecationWarning
+        )
 
 
 def test_reuse_info_of_no_duplicates(empty_directory):
-    """A file contains the same lines twice. The SpdxInfo only contains those
+    """A file contains the same lines twice. The ReuseInfo only contains those
     lines once.
     """
     spdx_line = "SPDX-License-Identifier: GPL-3.0-or-later\n"

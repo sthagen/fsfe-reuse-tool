@@ -7,6 +7,7 @@
 
 import shutil
 import sys
+from importlib import import_module
 
 import pytest
 
@@ -15,14 +16,14 @@ from reuse.project import Project
 from reuse.report import ProjectReport
 
 try:
-    import posix as is_posix
+    IS_POSIX = bool(import_module("posix"))
 except ImportError:
-    is_posix = False
+    IS_POSIX = False
 
 cpython = pytest.mark.skipif(
     sys.implementation.name != "cpython", reason="only CPython supported"
 )
-posix = pytest.mark.skipif(not is_posix, reason="Windows not supported")
+posix = pytest.mark.skipif(not IS_POSIX, reason="Windows not supported")
 
 
 # REUSE-IgnoreStart
@@ -184,35 +185,6 @@ def test_lint_json_output(fake_repository):
                 fake_repository / "foo.py"
             )
         if test_file["path"].startswith(str(fake_repository / "doc")):
-            assert test_file["licenses"][0]["value"] == "CC0-1.0"
-            assert test_file["licenses"][0]["source"] == str(
-                fake_repository / ".reuse/dep5"
-            )
-
-
-def test_lint_json_output_precedence(fake_repository):
-    """Test for lint with JSON output with focus on precedence."""
-    (fake_repository / "doc/differently_licensed_docs.rst").write_text(
-        "SPDX-License-Identifier: MIT"
-    )
-    project = Project(fake_repository)
-    report = ProjectReport.generate(project)
-
-    json_result = report.to_dict_lint()
-
-    assert json_result
-    # Test result
-    assert json_result["summary"]["compliant"] is False
-    # Test license path precedence
-    for test_file in json_result["files"]:
-        if test_file["path"].startswith(
-            str(fake_repository / "doc/differently_licensed_docs.rst")
-        ):
-            assert test_file["licenses"][0]["value"] == "MIT"
-            assert test_file["licenses"][0]["source"] == str(
-                fake_repository / "doc/differently_licensed_docs.rst"
-            )
-        if test_file["path"].startswith(str(fake_repository / "doc/index.rst")):
             assert test_file["licenses"][0]["value"] == "CC0-1.0"
             assert test_file["licenses"][0]["source"] == str(
                 fake_repository / ".reuse/dep5"

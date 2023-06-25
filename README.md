@@ -20,7 +20,7 @@ recommendations.
 - Source code: <https://github.com/fsfe/reuse-tool>
 - PyPI: <https://pypi.python.org/pypi/reuse>
 - REUSE: 3.0
-- Python: 3.7+
+- Python: 3.8+
 
 ## Table of contents
 
@@ -243,7 +243,7 @@ Git. This uses [pre-commit](https://pre-commit.com/). Once you
 ```yaml
 repos:
   - repo: https://github.com/fsfe/reuse-tool
-    rev: v1.1.2
+    rev: v2.0.0
     hooks:
       - id: reuse
 ```

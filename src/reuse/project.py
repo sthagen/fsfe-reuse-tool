@@ -10,9 +10,10 @@ import contextlib
 import glob
 import logging
 import os
+import warnings
 from gettext import gettext as _
 from pathlib import Path
-from typing import Dict, Iterator, Optional
+from typing import Dict, Iterator, Optional, Union, cast
 
 from boolean.boolean import ParseError
 from debian.copyright import Copyright
@@ -32,14 +33,20 @@ from ._util import (
     _HEADER_BYTES,
     GIT_EXE,
     HG_EXE,
-    PathLike,
+    StrPath,
     _contains_snippet,
     _copyright_from_dep5,
     _determine_license_path,
     decoded_text_from_binary,
-    extract_spdx_info,
+    extract_reuse_info,
 )
-from .vcs import VCSStrategyGit, VCSStrategyHg, VCSStrategyNone, find_root
+from .vcs import (
+    VCSStrategy,
+    VCSStrategyGit,
+    VCSStrategyHg,
+    VCSStrategyNone,
+    find_root,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,7 +58,7 @@ class Project:
 
     def __init__(
         self,
-        root: PathLike,
+        root: StrPath,
         include_submodules: bool = False,
         include_meson_subprojects: bool = False,
     ):
@@ -60,7 +67,7 @@ class Project:
             raise NotADirectoryError(f"{self._root} is no valid path")
 
         if GIT_EXE and VCSStrategyGit.in_repo(self._root):
-            self.vcs_strategy = VCSStrategyGit(self)
+            self.vcs_strategy: VCSStrategy = VCSStrategyGit(self)
         elif HG_EXE and VCSStrategyHg.in_repo(self._root):
             self.vcs_strategy = VCSStrategyHg(self)
         else:
@@ -72,14 +79,14 @@ class Project:
             )
             self.vcs_strategy = VCSStrategyNone(self)
 
-        self.licenses_without_extension = {}
+        self.licenses_without_extension: Dict[str, Path] = {}
 
         self.license_map = LICENSE_MAP.copy()
         # TODO: Is this correct?
         self.license_map.update(EXCEPTION_MAP)
         self.licenses = self._licenses()
         # Use '0' as None, because None is a valid value...
-        self._copyright_val = 0
+        self._copyright_val: Optional[Union[int, Copyright]] = 0
         self.include_submodules = include_submodules
 
         meson_build_path = self._root / "meson.build"
@@ -88,7 +95,7 @@ class Project:
             include_meson_subprojects and uses_meson
         )
 
-    def all_files(self, directory: PathLike = None) -> Iterator[Path]:
+    def all_files(self, directory: Optional[StrPath] = None) -> Iterator[Path]:
         """Yield all files in *directory* and its subdirectories.
 
         The files that are not yielded are:
@@ -101,8 +108,8 @@ class Project:
             directory = self.root
         directory = Path(directory)
 
-        for root, dirs, files in os.walk(directory):
-            root = Path(root)
+        for root_str, dirs, files in os.walk(directory):
+            root = Path(root_str)
             _LOGGER.debug("currently walking in '%s'", root)
 
             # Don't walk ignored directories
@@ -141,27 +148,30 @@ class Project:
                 _LOGGER.debug("yielding '%s'", the_file)
                 yield the_file
 
-    def reuse_info_of(self, path: PathLike) -> ReuseInfo:
-        """Return SPDX info of *path*.
+    def reuse_info_of(self, path: StrPath) -> ReuseInfo:
+        """Return REUSE info of *path*.
 
-        This function will return any SPDX information that it can find, both
+        This function will return any REUSE information that it can find, both
         from within the file, the .license file and from the .reuse/dep5 file.
 
         It also returns a single primary source path of the license/copyright
         information, where 'primary' means '.license file' > 'header' > 'dep5'
         """
+        original_path = path
         path = _determine_license_path(path)
+        dep5_path: Optional[str] = None
         source_path = ""
         source_type = None
 
-        _LOGGER.debug(f"searching '{path}' for SPDX information")
+        _LOGGER.debug(f"searching '{path}' for REUSE information")
 
         # This means that only one 'source' of licensing/copyright information
-        # is captured in SpdxInfo
-        dep5_result = ReuseInfo(set(), set())
-        file_result = ReuseInfo(set(), set())
+        # is captured in ReuseInfo
+        dep5_result = ReuseInfo()
+        file_result = ReuseInfo()
+        final_result = ReuseInfo()
 
-        # Search the .reuse/dep5 file for SPDX information.
+        # Search the .reuse/dep5 file for REUSE information.
         if self._copyright:
             dep5_result = _copyright_from_dep5(
                 self.relative_from_root(path), self._copyright
@@ -171,8 +181,9 @@ class Project:
                     _("'{path}' covered by .reuse/dep5").format(path=path)
                 )
                 source_path = str(self.root / ".reuse/dep5")
+                dep5_path = source_path
 
-        # Search the file for SPDX information.
+        # Search the file for REUSE information.
         with path.open("rb") as fp:
             try:
                 # Completely read the file once to search for possible snippets
@@ -183,8 +194,9 @@ class Project:
                     read_limit = _HEADER_BYTES
                 # Reset read position
                 fp.seek(0)
-                # Scan the file for SPDX info, possible limiting the read length
-                file_result = extract_spdx_info(
+                # Scan the file for REUSE info, possible limiting the read
+                # length
+                file_result = extract_reuse_info(
                     decoded_text_from_binary(fp, size=read_limit)
                 )
                 if file_result:
@@ -207,38 +219,42 @@ class Project:
             dep5_result.contains_copyright_or_licensing()
             and file_result.contains_copyright_or_licensing()
         ):
-            _LOGGER.warning(
+            final_result = file_result.union(dep5_result)
+            warnings.warn(
                 _(
-                    "Copyright and licensing information for '{path}' have been"
-                    " found in both the file header or .license file and the"
-                    " DEP5 file located at '{dep5_path}'. The information in"
-                    " the DEP5 file has been overriden. Please ensure that this"
-                    " is correct."
-                ).format(path=path, dep5_path=".reuse/dep5")
+                    "Copyright and licensing information for"
+                    " '{original_path}' has been found in both '{path}' and"
+                    " in the DEP5 file located at '{dep5_path}'. The"
+                    " information for these two sources has been"
+                    " aggregated. In the future this behaviour will change,"
+                    " and you will need to explicitly enable aggregation."
+                    " See"
+                    " <https://github.com/fsfe/reuse-tool/issues/779>. You"
+                    " need do nothing yet. Run with"
+                    " `--suppress-deprecation` to hide this warning."
+                ).format(
+                    original_path=original_path, path=path, dep5_path=dep5_path
+                ),
+                PendingDeprecationWarning,
             )
         # Information is only found in a DEP5 file
         elif (
             dep5_result.contains_copyright_or_licensing()
             and not file_result.contains_copyright_or_licensing()
         ):
-            return ReuseInfo(
-                spdx_expressions=dep5_result.spdx_expressions,
-                copyright_lines=dep5_result.copyright_lines,
-                source_path=source_path,
-                source_type=SourceType.DEP5_FILE,
-            )
+            final_result = dep5_result.copy(source_path=source_path)
         # There is a file header or a .license file
-        return ReuseInfo(
-            spdx_expressions=file_result.spdx_expressions,
-            copyright_lines=file_result.copyright_lines,
-            source_path=source_path,
-            source_type=source_type,
-        )
+        else:
+            final_result = file_result.copy(
+                source_path=source_path, source_type=source_type
+            )
+        return final_result
 
-    def relative_from_root(self, path: Path) -> Path:
+    def relative_from_root(self, path: StrPath) -> Path:
         """If the project root is /tmp/project, and *path* is
         /tmp/project/src/file, then return src/file.
         """
+        path = Path(path)
         try:
             return path.relative_to(self.root)
         except ValueError:
@@ -306,17 +322,17 @@ class Project:
             # this line under each exception.
             if not self._copyright_val:
                 self._copyright_val = None
-        return self._copyright_val
+        return cast(Optional[Copyright], self._copyright_val)
 
     def _licenses(self) -> Dict[str, Path]:
         """Return a dictionary of all licenses in the project, with their SPDX
         identifiers as names and paths as values.
         """
-        license_files = {}
+        license_files: Dict[str, Path] = {}
 
         directory = str(self.root / "LICENSES/**")
-        for path in glob.iglob(directory, recursive=True):
-            path = Path(path)
+        for path_str in glob.iglob(directory, recursive=True):
+            path = Path(path_str)
             # For some reason, LICENSES/** is resolved even though it
             # doesn't exist. I have no idea why. Deal with that here.
             if not Path(path).exists() or Path(path).is_dir():
