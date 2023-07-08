@@ -99,11 +99,16 @@ jobs:
     container: node:latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install prettier
+        run: npm install prettier@2.7.1
       - name: Run prettier
         run: npx prettier --check .
 
   reuse:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python

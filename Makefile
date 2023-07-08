@@ -1,4 +1,6 @@
 # SPDX-FileCopyrightText: 2017 Free Software Foundation Europe e.V. <https://fsfe.org>
+# SPDX-FileCopyrightText: 2023 DB Systel GmbH
+# SPDX-FileCopyrightText: 2023 Carmen Bianca BAKKER <carmenbianca@fsfe.org>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -19,7 +21,6 @@ clean-build: ## remove build artifacts
 	rm -fr .eggs/
 	rm -fr pip-wheel-metadata/
 	find . -name '*.mo' -exec rm -f {} +
-	find ./po -name '*.pot' -exec rm -f {} +
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -fr {} +
 
@@ -50,9 +51,13 @@ reuse: dist ## check with self
 	git init dist/reuse*/
 	poetry run reuse --root dist/reuse*/ lint
 
+.PHONY: lint-third-party
+lint-third-party: ## Lint selected third-party repositories to compare with expected output
+	poetry run python3 .github/workflows/third_party_lint.py --defaults --json
+
 .PHONY: docs
 docs: ## generate Sphinx HTML documentation, including API docs
-	poetry export --dev --without-hashes >docs/requirements.txt
+	poetry export --with docs --without-hashes >docs/requirements.txt
 	$(MAKE) -C docs html
 
 .PHONY: docs-ci
@@ -69,6 +74,9 @@ create-pot:  ## generate .pot file
 	xgettext --add-comments --from-code=utf-8 --output=po/reuse.pot --files-from=po/POTFILES.in
 	xgettext --add-comments --output=po/argparse.pot /usr/lib*/python3*/argparse.py
 	msgcat --output=po/reuse.pot po/reuse.pot po/argparse.pot
+	for name in po/*.po; do \
+		msgmerge --output=$${name} $${name} po/reuse.pot; \
+	done
 
 .PHONY: update-po-files
 update-po-files: create-pot  ## update .po files
