@@ -20,7 +20,8 @@
 #
 import os
 import sys
-from importlib.metadata import PackageNotFoundError, version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as get_version
 from shutil import copyfile
 
 sys.path.insert(0, os.path.abspath("../src/"))
@@ -73,9 +74,9 @@ author = "Free Software Foundation Europe"
 
 try:
     # The full version, including alpha/beta/rc tags.
-    release = version("reuse")
+    release = get_version("reuse")
 except PackageNotFoundError:
-    release = "2.0.0"
+    release = "2.1.0"
 
 # The short X.Y.Z version.
 version = ".".join(release.split(".")[:3])
@@ -126,7 +127,7 @@ htmlhelp_basename = "reusedoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements = {
+latex_elements: dict = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
