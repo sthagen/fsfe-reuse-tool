@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2022 Florian Snow <florian@familysnow.net>
 # SPDX-FileCopyrightText: 2023 DB Systel GmbH
 # SPDX-FileCopyrightText: 2023 Carmen Bianca BAKKER <carmenbianca@fsfe.org>
-#
+# SPDX-FileCopyrightText: 2023 Matthias Riße
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """Module that contains the central Project class."""
@@ -16,6 +16,7 @@ from gettext import gettext as _
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Union, cast
 
+from binaryornot.check import is_binary
 from boolean.boolean import ParseError
 from debian.copyright import Copyright
 from debian.copyright import Error as DebianError
@@ -32,12 +33,14 @@ from . import (
 from ._licenses import EXCEPTION_MAP, LICENSE_MAP
 from ._util import (
     _HEADER_BYTES,
+    _LICENSEREF_PATTERN,
     GIT_EXE,
     HG_EXE,
     StrPath,
     _contains_snippet,
     _copyright_from_dep5,
     _determine_license_path,
+    _is_uncommentable,
     decoded_text_from_binary,
     extract_reuse_info,
 )
@@ -123,8 +126,9 @@ class Project:
                     _LOGGER.debug("skipping symlink '%s'", the_dir)
                     dirs.remove(dir_)
                 elif (
-                    the_dir / ".git"
-                ).is_file() and not self.include_submodules:
+                    not self.include_submodules
+                    and self.vcs_strategy.is_submodule(the_dir)
+                ):
                     _LOGGER.info(
                         "ignoring '%s' because it is a submodule", the_dir
                     )
@@ -184,40 +188,54 @@ class Project:
                     _("'{path}' covered by .reuse/dep5").format(path=path)
                 )
 
-        # Search the file for REUSE information.
-        with path.open("rb") as fp:
-            try:
-                # Completely read the file once to search for possible snippets
-                if _contains_snippet(fp):
-                    _LOGGER.debug(f"'{path}' seems to contain a SPDX Snippet")
-                    read_limit = None
-                else:
-                    read_limit = _HEADER_BYTES
-                # Reset read position
-                fp.seek(0)
-                # Scan the file for REUSE info, possible limiting the read
-                # length
-                file_result = extract_reuse_info(
-                    decoded_text_from_binary(fp, size=read_limit)
-                )
-                if file_result.contains_copyright_or_licensing():
-                    if path.suffix == ".license":
-                        source_type = SourceType.DOT_LICENSE
-                    else:
-                        source_type = SourceType.FILE_HEADER
-                    file_result = file_result.copy(
-                        path=self.relative_from_root(original_path).as_posix(),
-                        source_path=self.relative_from_root(path).as_posix(),
-                        source_type=source_type,
+        if _is_uncommentable(path) or is_binary(str(path)):
+            _LOGGER.info(
+                _(
+                    "'{path}' was detected as a binary file or its extension is"
+                    " marked as uncommentable; not searching its contents for"
+                    " REUSE information."
+                ).format(path=path)
+            )
+        else:
+            # Search the file for REUSE information.
+            with path.open("rb") as fp:
+                try:
+                    read_limit: Optional[int] = _HEADER_BYTES
+                    # Completely read the file once
+                    # to search for possible snippets
+                    if _contains_snippet(fp):
+                        _LOGGER.debug(
+                            f"'{path}' seems to contain an SPDX Snippet"
+                        )
+                        read_limit = None
+                    # Reset read position
+                    fp.seek(0)
+                    # Scan the file for REUSE info, possibly limiting the read
+                    # length
+                    file_result = extract_reuse_info(
+                        decoded_text_from_binary(fp, size=read_limit)
                     )
+                    if file_result.contains_copyright_or_licensing():
+                        source_type = SourceType.FILE_HEADER
+                        if path.suffix == ".license":
+                            source_type = SourceType.DOT_LICENSE
+                        file_result = file_result.copy(
+                            path=self.relative_from_root(
+                                original_path
+                            ).as_posix(),
+                            source_path=self.relative_from_root(
+                                path
+                            ).as_posix(),
+                            source_type=source_type,
+                        )
 
-            except (ExpressionError, ParseError):
-                _LOGGER.error(
-                    _(
-                        "'{path}' holds an SPDX expression that cannot be"
-                        " parsed, skipping the file"
-                    ).format(path=path)
-                )
+                except (ExpressionError, ParseError):
+                    _LOGGER.error(
+                        _(
+                            "'{path}' holds an SPDX expression that cannot be"
+                            " parsed, skipping the file"
+                        ).format(path=path)
+                    )
 
         # There is both information in a .dep5 file and in the file header
         if dep5_result.contains_info() and file_result.contains_info():
@@ -288,7 +306,7 @@ class Project:
             raise IdentifierNotFound(f"{path} has no file extension")
         if path.stem in self.license_map:
             return path.stem
-        if path.stem.startswith("LicenseRef-"):
+        if _LICENSEREF_PATTERN.match(path.stem):
             return path.stem
 
         raise IdentifierNotFound(
@@ -380,7 +398,7 @@ class Project:
             # Add the identifiers
             license_files[identifier] = path
             if (
-                identifier.startswith("LicenseRef-")
+                _LICENSEREF_PATTERN.match(identifier)
                 and "Unknown" not in identifier
             ):
                 self.license_map[identifier] = {

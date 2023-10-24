@@ -42,17 +42,40 @@ CLI command and its behaviour. There are no guarantees of stability for the
 
 ### Added
 
+- Implement handling LicenseRef in `download` and `init`. (#697)
 - Declared support for Python 3.12. (#846)
 - More file types are recognised:
   - Julia (`.jl`) (#815)
+  - Modern Fortran (`.f90`) (#836)
+- Display recommendations for steps to fix found issues during a lint. (#698)
 
 ### Changed
 
 - Alpine Docker image now uses 3.18 as base. (#846)
+- The Git submodule detection was made less naïve. Where previously it detected
+  a directory with a `.git` file as a submodule, it now uses the git command to
+  detect submodules. This helps detect (quoted from Git man page)
+  "[repositories] that were cloned independently and later added as a submodule
+  or old setups", which "have the submodule's git directory inside the submodule
+  instead of embedded into the superproject's git directory". (#687)
+- When running `annotate` on a file with an unrecognised file path,
+  automatically create a `.license` file. (#851)
+- No longer scan binary or uncommentable files for their contents in search of
+  REUSE information. (#825)
+- `--force-dot-license` and `--skip-unrecognised` are now mutually exclusive on
+  `annotate`. (#852)
+- No longer create and publish `-extra` Docker images. The `openssh-client`
+  package is now in the main image. (#849)
+- No longer create and publish `dev` Docker images. (#849)
+- The `-debian` Docker image is now based off debian:12-slim. It used to be
+  based on the python:slim image, which used debian:slim under the hood. (#849)
 
 ### Deprecated
 
 ### Removed
+
+- Removed deprecated `--explicit-license`. (#851)
+- Removed deprecated `addheader`. (#851)
 
 ### Fixed
 
@@ -751,8 +774,8 @@ Specification.
 - `reuse lint` now provides a helpful summary instead of merely spitting out
   non-compliant files.
 - `reuse compile` is now `reuse spdx`.
-- In addition to `Copyright` and `©`, copyright lines can be marked with the tag
-  `SPDX-FileCopyrightText:`. This is the new recommended default.
+- In addition to `Copyright` and `©`, copyright lines can be marked with the
+  tag `SPDX-FileCopyrightText:`. This is the new recommended default.
 - Project no longer depends on pygit2.
 - The list of SPDX licenses has been updated.
 - `Valid-License-Identifier` is no longer used, and licenses and exceptions can

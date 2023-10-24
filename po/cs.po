@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-17 07:46+0000\n"
+"POT-Creation-Date: 2023-10-24 18:17+0000\n"
 "PO-Revision-Date: 2023-04-12 13:49+0000\n"
 "Last-Translator: Jiří Podhorecký <j.podhorecky@volny.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/fsfe/reuse-tool/cs/"
@@ -113,7 +113,7 @@ msgid ""
 "template by specifying '--template mytemplate'. Read the online "
 "documentation on how to use this feature.\n"
 "\n"
-"If a binary file is detected, or if --explicit-license is specified, the "
+"If a binary file is detected, or if --force-dot-license is specified, the "
 "header is placed in a .license file."
 msgstr ""
 "Přidání autorských práv a licencí do záhlaví jednoho nebo více souborů.\n"
@@ -144,17 +144,11 @@ msgstr ""
 "Pokud je detekován binární soubor nebo pokud je zadán parametr --explicit-"
 "license, je hlavička umístěna do souboru .license."
 
-#. TRANSLATORS: Do not translate annotate.
-#: src/reuse/_main.py:160
-#, fuzzy
-msgid "deprecated in favor of annotate"
-msgstr "'reuse addheader' bylo zrušeno ve prospěch 'reuse annotate'"
-
-#: src/reuse/_main.py:168
+#: src/reuse/_main.py:159
 msgid "download a license and place it in the LICENSES/ directory"
 msgstr "stáhněte si licenci a umístěte ji do adresáře LICENSES/"
 
-#: src/reuse/_main.py:171
+#: src/reuse/_main.py:162
 msgid ""
 "Download a license and place it in the LICENSES/ directory.\n"
 "\n"
@@ -180,15 +174,15 @@ msgstr ""
 "\n"
 "Pokud adresář LICENSES/ nelze nalézt, je jednoduše vytvořen."
 
-#: src/reuse/_main.py:194
+#: src/reuse/_main.py:185
 msgid "initialize REUSE project"
 msgstr "inicializace projektu REUSE"
 
-#: src/reuse/_main.py:202
+#: src/reuse/_main.py:193
 msgid "list all non-compliant files"
 msgstr "seznam všech nevyhovujících souborů"
 
-#: src/reuse/_main.py:205
+#: src/reuse/_main.py:196
 #, python-brace-format
 msgid ""
 "Lint the project directory for compliance with version {reuse_version} of "
@@ -224,56 +218,56 @@ msgstr ""
 "\n"
 "- Mají všechny soubory platné informace o autorských právech a licencích?"
 
-#: src/reuse/_main.py:232
+#: src/reuse/_main.py:223
 msgid "print the project's bill of materials in SPDX format"
 msgstr "vytisknout výkaz materiálu projektu ve formátu SPDX"
 
-#: src/reuse/_main.py:240
+#: src/reuse/_main.py:231
 msgid "list all supported SPDX licenses"
 msgstr "seznam všech podporovaných licencí SPDX"
 
-#: src/reuse/_util.py:344
+#: src/reuse/_util.py:398
 #, python-brace-format
 msgid "Could not parse '{expression}'"
 msgstr "Nepodařilo se analyzovat '{expression}'"
 
-#: src/reuse/_util.py:478
+#: src/reuse/_util.py:532
 msgid "'{}' is not a file"
 msgstr "'{}' není soubor"
 
-#: src/reuse/_util.py:481
+#: src/reuse/_util.py:535
 msgid "'{}' is not a directory"
 msgstr "'{}' není adresář"
 
-#: src/reuse/_util.py:484
+#: src/reuse/_util.py:538
 msgid "can't open '{}'"
 msgstr "nelze otevřít '{}'"
 
-#: src/reuse/_util.py:489
+#: src/reuse/_util.py:543
 msgid "can't write to directory '{}'"
 msgstr "nelze zapisovat do adresáře '{}'"
 
-#: src/reuse/_util.py:495 src/reuse/header.py:578
+#: src/reuse/_util.py:549
 msgid "can't write to '{}'"
 msgstr "nelze zapisovat do '{}'"
 
-#: src/reuse/_util.py:508
+#: src/reuse/_util.py:562
 msgid "can't read or write '{}'"
 msgstr "nelze číst ani zapisovat '{}'"
 
-#: src/reuse/_util.py:518
+#: src/reuse/_util.py:572
 msgid "'{}' is not a valid SPDX expression, aborting"
 msgstr "'{}' není platný výraz SPDX, přeruší se"
 
-#: src/reuse/_util.py:546
+#: src/reuse/_util.py:600
 msgid "'{}' is not a valid SPDX License Identifier."
 msgstr "'{}' není platný identifikátor licence SPDX."
 
-#: src/reuse/_util.py:553
+#: src/reuse/_util.py:607
 msgid "Did you mean:"
 msgstr "Měl jste na mysli:"
 
-#: src/reuse/_util.py:560
+#: src/reuse/_util.py:614
 msgid ""
 "See <https://spdx.org/licenses/> for a list of valid SPDX License "
 "Identifiers."
@@ -281,422 +275,292 @@ msgstr ""
 "Seznam platných identifikátorů licence SPDX naleznete na adrese <https://"
 "spdx.org/licenses/>."
 
-#: src/reuse/download.py:96
+#: src/reuse/download.py:122
 msgid "SPDX License Identifier of license"
 msgstr "Licence SPDX Identifikátor licence"
 
-#: src/reuse/download.py:101
+#: src/reuse/download.py:127
 msgid "download all missing licenses detected in the project"
 msgstr "stáhnout všechny chybějící licence zjištěné v projektu"
 
-#: src/reuse/download.py:113
+#: src/reuse/download.py:137
+msgid ""
+"source from which to copy custom LicenseRef- licenses, either a directory "
+"that contains the file or the file itself"
+msgstr ""
+
+#: src/reuse/download.py:148
 #, python-brace-format
 msgid "Error: {spdx_identifier} already exists."
 msgstr "Chyba: {spdx_identifier} již existuje."
 
-#: src/reuse/download.py:120
+#: src/reuse/download.py:155
+#, python-brace-format
+msgid "Error: {path} does not exist."
+msgstr ""
+
+#: src/reuse/download.py:158
 msgid "Error: Failed to download license."
 msgstr "Chyba: Nepodařilo se stáhnout licenci."
 
-#: src/reuse/download.py:125
+#: src/reuse/download.py:163
 msgid "Is your internet connection working?"
 msgstr "Funguje vaše internetové připojení?"
 
-#: src/reuse/download.py:130
+#: src/reuse/download.py:168
 #, python-brace-format
 msgid "Successfully downloaded {spdx_identifier}."
 msgstr "Úspěšně stažen {spdx_identifier}."
 
-#: src/reuse/download.py:142
+#: src/reuse/download.py:180
 msgid "--output has no effect when used together with --all"
 msgstr "--output nemá žádný účinek, pokud se použije společně s --all"
 
-#: src/reuse/download.py:146
+#: src/reuse/download.py:184
 msgid "the following arguments are required: license"
 msgstr "jsou vyžadovány tyto argumenty: licence"
 
-#: src/reuse/download.py:148
+#: src/reuse/download.py:186
 msgid "cannot use --output with more than one license"
 msgstr "nelze použít --output s více než jednou licencí"
 
-#: src/reuse/header.py:132
+#: src/reuse/header.py:99
 msgid "generated comment is missing copyright lines or license expressions"
 msgstr ""
 "ve vygenerovaném komentáři chybí řádky s autorskými právy nebo licenční "
 "výrazy"
 
-#: src/reuse/header.py:416
-#, python-brace-format
-msgid ""
-"'{path}' does not support single-line comments, please do not use --single-"
-"line"
-msgstr ""
-"'{path}' nepodporuje jednořádkové komentáře, nepoužívejte prosím --single-"
-"line"
-
-#: src/reuse/header.py:423
-#, python-brace-format
-msgid ""
-"'{path}' does not support multi-line comments, please do not use --multi-line"
-msgstr "'{path}' nepodporuje víceřádkové komentáře, nepoužívejte --multi-line"
-
-#: src/reuse/header.py:446
-msgid ""
-"The following files do not have a recognised file extension. Please use --"
-"style, --force-dot-license or --skip-unrecognised:"
-msgstr ""
-"Následující soubory nemají rozpoznanou příponu. Použijte prosím --style, --"
-"force-dot-licence nebo --skip-unrecognised:"
-
-#: src/reuse/header.py:500
-#, python-brace-format
-msgid "Skipped unrecognised file {path}"
-msgstr "Přeskočen nerozpoznaný soubor {path}"
-
-#: src/reuse/header.py:512
-#, fuzzy, python-brace-format
-msgid "Skipped file '{path}' already containing REUSE information"
-msgstr "Přeskočený soubor '{path}' již obsahuje informace SPDX"
-
-#: src/reuse/header.py:546
-#, python-brace-format
-msgid "Error: Could not create comment for '{path}'"
-msgstr "Chyba: Nepodařilo se vytvořit komentář pro '{path}'"
-
-#: src/reuse/header.py:553
-#, python-brace-format
-msgid ""
-"Error: Generated comment header for '{path}' is missing copyright lines or "
-"license expressions. The template is probably incorrect. Did not write new "
-"header."
-msgstr ""
-"Chyba: Chybí řádky s autorskými právy nebo licenční výrazy v generovaném "
-"záhlaví komentáře pro '{path}'. Šablona je pravděpodobně nesprávná. "
-"Nepodařilo se zapsat novou hlavičku."
-
-#. TODO: This may need to be rephrased more elegantly.
-#: src/reuse/header.py:564
-#, python-brace-format
-msgid "Successfully changed header of {path}"
-msgstr "Úspěšně změněna hlavička {path}"
-
-#: src/reuse/header.py:589
-msgid "copyright statement, repeatable"
-msgstr "prohlášení o autorských právech, opakovatelné"
-
-#: src/reuse/header.py:596
-msgid "SPDX Identifier, repeatable"
-msgstr "Identifikátor SPDX, opakovatelný"
-
-#: src/reuse/header.py:602
-#, fuzzy
-msgid "file contributor, repeatable"
-msgstr "Identifikátor SPDX, opakovatelný"
-
-#: src/reuse/header.py:609
-msgid "year of copyright statement, optional"
-msgstr "rok vydání prohlášení o autorských právech, nepovinné"
-
-#: src/reuse/header.py:617
-msgid "comment style to use, optional"
-msgstr "styl komentáře, který se má použít, nepovinné"
-
-#: src/reuse/header.py:623
-msgid "copyright style to use, optional"
-msgstr "styl autorských práv, který se má použít, nepovinné"
-
-#: src/reuse/header.py:630
-msgid "name of template to use, optional"
-msgstr "název šablony, která se má použít, nepovinné"
-
-#: src/reuse/header.py:635
-msgid "do not include year in statement"
-msgstr "neuvádět rok v prohlášení"
-
-#: src/reuse/header.py:640
-msgid "merge copyright lines if copyright statements are identical"
-msgstr ""
-"sloučit řádky s autorskými právy, pokud jsou prohlášení o autorských právech "
-"totožná"
-
-#: src/reuse/header.py:645
-msgid "force single-line comment style, optional"
-msgstr "vynutit jednořádkový styl komentáře, nepovinné"
-
-#: src/reuse/header.py:650
-msgid "force multi-line comment style, optional"
-msgstr "vynutit víceřádkový styl komentáře, nepovinné"
-
-#: src/reuse/header.py:660
-msgid "write a .license file instead of a header inside the file"
-msgstr "zapsat soubor .license místo hlavičky uvnitř souboru"
-
-#: src/reuse/header.py:667
-msgid "add headers to all files under specified directories recursively"
-msgstr "zpětně přidat hlavičky ke všem souborům v zadaných adresářích"
-
-#: src/reuse/header.py:674
-msgid "do not replace the first header in the file; just add a new one"
-msgstr "nenahrazovat první hlavičku v souboru, ale přidat novou"
-
-#: src/reuse/header.py:680
-msgid "skip files with unrecognised comment styles"
-msgstr "přeskočit soubory s nerozpoznanými styly komentářů"
-
-#: src/reuse/header.py:685
-#, fuzzy
-msgid "skip files that already contain REUSE information"
-msgstr "přeskočit soubory, které již obsahují informace SPDX"
-
-#: src/reuse/header.py:696
-msgid "'reuse addheader' has been deprecated in favour of 'reuse annotate'"
-msgstr "'reuse addheader' bylo zrušeno ve prospěch 'reuse annotate'"
-
-#: src/reuse/header.py:703
-#, fuzzy
-msgid "option --contributor, --copyright or --license is required"
-msgstr "je vyžadována volba --copyright nebo --licence"
-
-#: src/reuse/header.py:708
-msgid "option --exclude-year and --year are mutually exclusive"
-msgstr "volby --exclude-year a --year se vzájemně vylučují"
-
-#: src/reuse/header.py:713
-msgid "option --single-line and --multi-line are mutually exclusive"
-msgstr "volby --single-line a --multi-line se vzájemně vylučují"
-
-#: src/reuse/header.py:719
-msgid "--skip-unrecognised has no effect when used together with --style"
-msgstr ""
-"--skip-unrecognised nemá žádný účinek, pokud se použije společně s --style"
-
-#: src/reuse/header.py:726
-msgid "--explicit-license has been deprecated in favour of --force-dot-license"
-msgstr "--explicit-license bylo zrušeno ve prospěch --force-dot-license"
-
-#: src/reuse/header.py:770
-#, python-brace-format
-msgid "template {template} could not be found"
-msgstr "šablonu {template} se nepodařilo najít"
-
-#: src/reuse/header.py:822
-#, python-brace-format
-msgid "'{path}' is a binary, therefore using '{new_path}' for the header"
-msgstr "'{path}' je binární soubor, proto použijte '{new_path}' pro hlavičku"
-
-#: src/reuse/init.py:25
+#: src/reuse/init.py:30
 #, fuzzy
 msgid ""
 "What license is your project under? Provide the SPDX License Identifier. See "
 "<https://spdx.org/licenses/> for the list."
 msgstr "Pod jakou licencí je váš projekt? Uveďte identifikátor licence SPDX."
 
-#: src/reuse/init.py:30
+#: src/reuse/init.py:35
 msgid ""
 "What other license is your project under? Provide the SPDX License "
 "Identifier."
 msgstr ""
 "Pod jakou jinou licencí je váš projekt? Uveďte identifikátor licence SPDX."
 
-#: src/reuse/init.py:41
+#: src/reuse/init.py:46
 msgid "To stop adding licenses, hit RETURN."
 msgstr "Chcete-li přidávání licencí ukončit, stiskněte klávesu RETURN."
 
-#: src/reuse/init.py:79
+#: src/reuse/init.py:86
 msgid "Project already initialized"
 msgstr "Projekt je již inicializován"
 
-#: src/reuse/init.py:83
+#: src/reuse/init.py:90
 msgid "Initializing project for REUSE."
 msgstr "Inicializace projektu REUSE."
 
-#: src/reuse/init.py:88
+#: src/reuse/init.py:95
 msgid "What is the name of the project?"
 msgstr "Jaký je název projektu?"
 
-#: src/reuse/init.py:94
+#: src/reuse/init.py:101
 msgid "What is the internet address of the project?"
 msgstr "Jaká je internetová adresa projektu?"
 
-#: src/reuse/init.py:100
+#: src/reuse/init.py:107
 msgid "What is the name of the maintainer?"
 msgstr "Jak se jmenuje správce?"
 
-#: src/reuse/init.py:106
+#: src/reuse/init.py:113
 msgid "What is the e-mail address of the maintainer?"
 msgstr "Jaká je e-mailová adresa správce?"
 
-#: src/reuse/init.py:112
+#: src/reuse/init.py:119
 msgid "All done! Initializing now."
 msgstr "Hotovo! Inicializuje se."
 
-#: src/reuse/init.py:120
-msgid "Downloading {}"
-msgstr "Stahování {}"
+#: src/reuse/init.py:128
+msgid "Retrieving {}"
+msgstr ""
 
-#: src/reuse/init.py:125
+#: src/reuse/init.py:133
 msgid "{} already exists"
 msgstr "{} již existuje"
 
-#: src/reuse/init.py:128
+#: src/reuse/init.py:136
 msgid "Could not download {}"
 msgstr "Nelze stáhnout {}"
 
-#: src/reuse/init.py:133
+#: src/reuse/init.py:141
+#, python-brace-format
+msgid ""
+"Error: Could not copy {path}, please add {lic}.txt manually in the LICENCES/ "
+"directory."
+msgstr ""
+
+#: src/reuse/init.py:149
 msgid "Creating .reuse/dep5"
 msgstr "Vytvoření .reuse/dep5"
 
-#: src/reuse/init.py:156
+#: src/reuse/init.py:172
 msgid "Initialization complete."
 msgstr "Inicializace dokončena."
 
-#: src/reuse/lint.py:27
+#: src/reuse/lint.py:29
 msgid "prevents output"
 msgstr ""
 
-#: src/reuse/lint.py:30
+#: src/reuse/lint.py:32
 msgid "formats output as JSON"
 msgstr ""
 
-#: src/reuse/lint.py:36
+#: src/reuse/lint.py:38
 msgid "formats output as plain text"
 msgstr ""
 
-#: src/reuse/lint.py:55
+#: src/reuse/lint.py:57
 msgid "BAD LICENSES"
 msgstr "NEVHODNÉ LICENCE"
 
-#: src/reuse/lint.py:57 src/reuse/lint.py:86
+#: src/reuse/lint.py:59 src/reuse/lint.py:88
 msgid "'{}' found in:"
 msgstr "'{}' nalezeno v:"
 
-#: src/reuse/lint.py:64
+#: src/reuse/lint.py:66
 msgid "DEPRECATED LICENSES"
 msgstr "ZASTARALÉ LICENCE"
 
-#: src/reuse/lint.py:66
+#: src/reuse/lint.py:68
 msgid "The following licenses are deprecated by SPDX:"
 msgstr "Následující licence jsou v SPDX zrušeny:"
 
-#: src/reuse/lint.py:74
+#: src/reuse/lint.py:76
 msgid "LICENSES WITHOUT FILE EXTENSION"
 msgstr "LICENCE BEZ KONCOVKY SOUBORU"
 
-#: src/reuse/lint.py:76
+#: src/reuse/lint.py:78
 msgid "The following licenses have no file extension:"
 msgstr "Následující licence nemají příponu souboru:"
 
-#: src/reuse/lint.py:84
+#: src/reuse/lint.py:86
 msgid "MISSING LICENSES"
 msgstr "CHYBĚJÍCÍ LICENCE"
 
-#: src/reuse/lint.py:93
+#: src/reuse/lint.py:95
 msgid "UNUSED LICENSES"
 msgstr "NEPOUŽITÉ LICENCE"
 
-#: src/reuse/lint.py:94
+#: src/reuse/lint.py:96
 msgid "The following licenses are not used:"
 msgstr "Následující licence nejsou používány:"
 
-#: src/reuse/lint.py:101
+#: src/reuse/lint.py:103
 msgid "READ ERRORS"
 msgstr "CHYBY ČTENÍ"
 
-#: src/reuse/lint.py:102
+#: src/reuse/lint.py:104
 msgid "Could not read:"
 msgstr "Nelze načíst:"
 
-#: src/reuse/lint.py:123
+#: src/reuse/lint.py:125
 msgid "MISSING COPYRIGHT AND LICENSING INFORMATION"
 msgstr "CHYBĚJÍCÍ INFORMACE O AUTORSKÝCH PRÁVECH A LICENCÍCH"
 
-#: src/reuse/lint.py:129
+#: src/reuse/lint.py:131
 msgid "The following files have no copyright and licensing information:"
 msgstr ""
 "Následující soubory neobsahují žádné informace o autorských právech a "
 "licencích:"
 
-#: src/reuse/lint.py:140
+#: src/reuse/lint.py:142
 msgid "The following files have no copyright information:"
 msgstr "Následující soubory nemají žádné informace o autorských právech:"
 
-#: src/reuse/lint.py:149
+#: src/reuse/lint.py:151
 msgid "The following files have no licensing information:"
 msgstr "Následující soubory neobsahují žádné licenční informace:"
 
-#: src/reuse/lint.py:157
+#: src/reuse/lint.py:159
 msgid "SUMMARY"
 msgstr "SHRNUTÍ"
 
-#: src/reuse/lint.py:162
+#: src/reuse/lint.py:164
 msgid "Bad licenses:"
 msgstr "Neplatné licence:"
 
-#: src/reuse/lint.py:163
+#: src/reuse/lint.py:165
 msgid "Deprecated licenses:"
 msgstr "Zastaralé licence:"
 
-#: src/reuse/lint.py:164
+#: src/reuse/lint.py:166
 msgid "Licenses without file extension:"
 msgstr "Licence bez přípony souboru:"
 
-#: src/reuse/lint.py:167
+#: src/reuse/lint.py:169
 msgid "Missing licenses:"
 msgstr "Chybějící licence:"
 
-#: src/reuse/lint.py:168
+#: src/reuse/lint.py:170
 msgid "Unused licenses:"
 msgstr "Nepoužité licence:"
 
-#: src/reuse/lint.py:169
+#: src/reuse/lint.py:171
 msgid "Used licenses:"
 msgstr "Použité licence:"
 
-#: src/reuse/lint.py:170
+#: src/reuse/lint.py:172
 #, fuzzy
 msgid "Read errors:"
 msgstr "Chyby čtení: {count}"
 
-#: src/reuse/lint.py:172
+#: src/reuse/lint.py:174
 #, fuzzy
 msgid "files with copyright information:"
 msgstr "Soubory s informacemi o autorských právech: {count} / {total}"
 
-#: src/reuse/lint.py:176
+#: src/reuse/lint.py:178
 #, fuzzy
 msgid "files with license information:"
 msgstr "Soubory s licenčními informacemi: {count} / {total}"
 
-#: src/reuse/lint.py:193
+#: src/reuse/lint.py:195
 msgid ""
 "Congratulations! Your project is compliant with version {} of the REUSE "
 "Specification :-)"
 msgstr "Gratulujeme! Váš projekt je v souladu s verzí {} specifikace REUSE :-)"
 
-#: src/reuse/lint.py:200
+#: src/reuse/lint.py:202
 msgid ""
 "Unfortunately, your project is not compliant with version {} of the REUSE "
 "Specification :-("
 msgstr "Váš projekt bohužel není v souladu s verzí {} specifikace REUSE :-("
 
-#: src/reuse/project.py:77
+#: src/reuse/lint.py:209
+msgid "RECOMMENDATIONS"
+msgstr ""
+
+#: src/reuse/project.py:80
 msgid ""
 "project is not a VCS repository or required VCS software is not installed"
 msgstr ""
 
-#: src/reuse/project.py:184
+#: src/reuse/project.py:188
 #, python-brace-format
 msgid "'{path}' covered by .reuse/dep5"
 msgstr "'{path}' zahrnuto v .reuse/dep5"
 
-#: src/reuse/project.py:217
+#: src/reuse/project.py:194
+#, python-brace-format
+msgid ""
+"'{path}' was detected as a binary file or its extension is marked as "
+"uncommentable; not searching its contents for REUSE information."
+msgstr ""
+
+#: src/reuse/project.py:235
 #, python-brace-format
 msgid ""
 "'{path}' holds an SPDX expression that cannot be parsed, skipping the file"
 msgstr ""
 "'{path}' obsahuje výraz SPDX, který nelze analyzovat a soubor se přeskočí"
 
-#: src/reuse/project.py:226
+#: src/reuse/project.py:244
 #, python-brace-format
 msgid ""
 "Copyright and licensing information for '{original_path}' has been found in "
@@ -707,25 +571,25 @@ msgid ""
 "suppress-deprecation` to hide this warning."
 msgstr ""
 
-#: src/reuse/project.py:313
+#: src/reuse/project.py:331
 msgid ".reuse/dep5 has syntax errors"
 msgstr ".reuse/dep5 obsahuje chyby syntaxe"
 
-#: src/reuse/project.py:315
+#: src/reuse/project.py:333
 msgid ".reuse/dep5 could not be parsed as utf-8"
 msgstr ".reuse/dep5 nelze analyzovat jako utf-8"
 
-#: src/reuse/project.py:341
+#: src/reuse/project.py:359
 #, python-brace-format
 msgid "determining identifier of '{path}'"
 msgstr "určující identifikátor '{path}'"
 
-#: src/reuse/project.py:349
+#: src/reuse/project.py:367
 #, python-brace-format
 msgid "{path} does not have a file extension"
 msgstr "{path} nemá příponu souboru"
 
-#: src/reuse/project.py:359
+#: src/reuse/project.py:377
 #, python-brace-format
 msgid ""
 "Could not resolve SPDX License Identifier of {path}, resolving to "
@@ -738,22 +602,80 @@ msgstr ""
 "adrese <https://spdx.org/licenses/> nebo zda začíná znakem 'LicenseRef-' a "
 "zda má příponu souboru."
 
-#: src/reuse/project.py:371
+#: src/reuse/project.py:389
 #, python-brace-format
 msgid ""
 "{identifier} is the SPDX License Identifier of both {path} and {other_path}"
 msgstr ""
 "{identifier} je identifikátor licence SPDX jak {path}, tak {other_path}"
 
-#: src/reuse/report.py:264
+#: src/reuse/report.py:272
 #, python-brace-format
 msgid "Could not read '{path}'"
 msgstr "Nepodařilo se načíst '{path}'"
 
-#: src/reuse/report.py:271
+#: src/reuse/report.py:279
 #, python-brace-format
 msgid "Unexpected error occurred while parsing '{path}'"
 msgstr "Při analýze souboru '{path}' došlo k neočekávané chybě"
+
+#: src/reuse/report.py:400
+msgid ""
+"Fix bad licenses: At least one license in the LICENSES directory and/or "
+"provided by 'SPDX-License-Identifier' tags is invalid. They are either not "
+"valid SPDX License Identifiers or do not start with 'LicenseRef-'. FAQ about "
+"custom licenses: https://reuse.software/faq/#custom-license"
+msgstr ""
+
+#: src/reuse/report.py:411
+msgid ""
+"Fix deprecated licenses: At least one of the licenses in the LICENSES "
+"directory and/or provided by an 'SPDX-License-Identifier' tag or in '.reuse/"
+"dep5' has been deprecated by SPDX. The current list and their respective "
+"recommended  new identifiers can be found here: <https://spdx.org/licenses/"
+"#deprecated>"
+msgstr ""
+
+#: src/reuse/report.py:422
+msgid ""
+"Fix licenses without file extension: At least one license text file in the "
+"'LICENSES' directory does not have a '.txt' file extension. Please rename "
+"the file(s) accordingly."
+msgstr ""
+
+#: src/reuse/report.py:431
+msgid ""
+"Fix missing licenses: For at least one of the license identifiers provided "
+"by the 'SPDX-License-Identifier' tags, there is no corresponding license "
+"text file in the 'LICENSES' directory. For SPDX license identifiers, you can "
+"simply run 'reuse download --all' to get any missing ones. For custom "
+"licenses (starting with 'LicenseRef-'), you need to add these files yourself."
+msgstr ""
+
+#: src/reuse/report.py:443
+msgid ""
+"Fix unused licenses: At least one of the license text files in 'LICENSES' is "
+"not referenced by any file, e.g. by an 'SPDX-License-Identifier' tag. Please "
+"make sure that you either tag the accordingly licensed files properly, or "
+"delete the unused license text if you are sure that no file or code snippet "
+"is licensed as such."
+msgstr ""
+
+#: src/reuse/report.py:454
+msgid ""
+"Fix read errors: At least one of the files in your directory cannot be read "
+"by the tool. Please check the file permissions. You will find the affected "
+"files at the top of the output as part of the logged error messages."
+msgstr ""
+
+#: src/reuse/report.py:463
+msgid ""
+"Fix missing copyright/licensing information: For one or more files, the tool "
+"cannot find copyright and/or licensing information. You typically do this by "
+"adding 'SPDX-FileCopyrightText' and 'SPDX-License-Identifer' tags to each "
+"file. The tutorial explains additional ways to do this: <https://reuse."
+"software/tutorial/>"
+msgstr ""
 
 #: src/reuse/spdx.py:32
 msgid ""
@@ -937,6 +859,135 @@ msgstr "neplatná volba: %(value)r (vyberte z %(choices)s)"
 #, python-format
 msgid "%(prog)s: error: %(message)s\n"
 msgstr "%(prog)s: chyba: %(message)s\n"
+
+#, fuzzy
+#~ msgid "deprecated in favor of annotate"
+#~ msgstr "'reuse addheader' bylo zrušeno ve prospěch 'reuse annotate'"
+
+#~ msgid ""
+#~ "'{path}' does not support single-line comments, please do not use --"
+#~ "single-line"
+#~ msgstr ""
+#~ "'{path}' nepodporuje jednořádkové komentáře, nepoužívejte prosím --single-"
+#~ "line"
+
+#~ msgid ""
+#~ "'{path}' does not support multi-line comments, please do not use --multi-"
+#~ "line"
+#~ msgstr ""
+#~ "'{path}' nepodporuje víceřádkové komentáře, nepoužívejte --multi-line"
+
+#~ msgid ""
+#~ "The following files do not have a recognised file extension. Please use --"
+#~ "style, --force-dot-license or --skip-unrecognised:"
+#~ msgstr ""
+#~ "Následující soubory nemají rozpoznanou příponu. Použijte prosím --style, "
+#~ "--force-dot-licence nebo --skip-unrecognised:"
+
+#~ msgid "Skipped unrecognised file {path}"
+#~ msgstr "Přeskočen nerozpoznaný soubor {path}"
+
+#, fuzzy
+#~ msgid "Skipped file '{path}' already containing REUSE information"
+#~ msgstr "Přeskočený soubor '{path}' již obsahuje informace SPDX"
+
+#~ msgid "Error: Could not create comment for '{path}'"
+#~ msgstr "Chyba: Nepodařilo se vytvořit komentář pro '{path}'"
+
+#~ msgid ""
+#~ "Error: Generated comment header for '{path}' is missing copyright lines "
+#~ "or license expressions. The template is probably incorrect. Did not write "
+#~ "new header."
+#~ msgstr ""
+#~ "Chyba: Chybí řádky s autorskými právy nebo licenční výrazy v generovaném "
+#~ "záhlaví komentáře pro '{path}'. Šablona je pravděpodobně nesprávná. "
+#~ "Nepodařilo se zapsat novou hlavičku."
+
+#~ msgid "Successfully changed header of {path}"
+#~ msgstr "Úspěšně změněna hlavička {path}"
+
+#~ msgid "copyright statement, repeatable"
+#~ msgstr "prohlášení o autorských právech, opakovatelné"
+
+#~ msgid "SPDX Identifier, repeatable"
+#~ msgstr "Identifikátor SPDX, opakovatelný"
+
+#, fuzzy
+#~ msgid "file contributor, repeatable"
+#~ msgstr "Identifikátor SPDX, opakovatelný"
+
+#~ msgid "year of copyright statement, optional"
+#~ msgstr "rok vydání prohlášení o autorských právech, nepovinné"
+
+#~ msgid "comment style to use, optional"
+#~ msgstr "styl komentáře, který se má použít, nepovinné"
+
+#~ msgid "copyright style to use, optional"
+#~ msgstr "styl autorských práv, který se má použít, nepovinné"
+
+#~ msgid "name of template to use, optional"
+#~ msgstr "název šablony, která se má použít, nepovinné"
+
+#~ msgid "do not include year in statement"
+#~ msgstr "neuvádět rok v prohlášení"
+
+#~ msgid "merge copyright lines if copyright statements are identical"
+#~ msgstr ""
+#~ "sloučit řádky s autorskými právy, pokud jsou prohlášení o autorských "
+#~ "právech totožná"
+
+#~ msgid "force single-line comment style, optional"
+#~ msgstr "vynutit jednořádkový styl komentáře, nepovinné"
+
+#~ msgid "force multi-line comment style, optional"
+#~ msgstr "vynutit víceřádkový styl komentáře, nepovinné"
+
+#~ msgid "write a .license file instead of a header inside the file"
+#~ msgstr "zapsat soubor .license místo hlavičky uvnitř souboru"
+
+#~ msgid "add headers to all files under specified directories recursively"
+#~ msgstr "zpětně přidat hlavičky ke všem souborům v zadaných adresářích"
+
+#~ msgid "do not replace the first header in the file; just add a new one"
+#~ msgstr "nenahrazovat první hlavičku v souboru, ale přidat novou"
+
+#~ msgid "skip files with unrecognised comment styles"
+#~ msgstr "přeskočit soubory s nerozpoznanými styly komentářů"
+
+#, fuzzy
+#~ msgid "skip files that already contain REUSE information"
+#~ msgstr "přeskočit soubory, které již obsahují informace SPDX"
+
+#~ msgid "'reuse addheader' has been deprecated in favour of 'reuse annotate'"
+#~ msgstr "'reuse addheader' bylo zrušeno ve prospěch 'reuse annotate'"
+
+#, fuzzy
+#~ msgid "option --contributor, --copyright or --license is required"
+#~ msgstr "je vyžadována volba --copyright nebo --licence"
+
+#~ msgid "option --exclude-year and --year are mutually exclusive"
+#~ msgstr "volby --exclude-year a --year se vzájemně vylučují"
+
+#~ msgid "option --single-line and --multi-line are mutually exclusive"
+#~ msgstr "volby --single-line a --multi-line se vzájemně vylučují"
+
+#~ msgid "--skip-unrecognised has no effect when used together with --style"
+#~ msgstr ""
+#~ "--skip-unrecognised nemá žádný účinek, pokud se použije společně s --style"
+
+#~ msgid ""
+#~ "--explicit-license has been deprecated in favour of --force-dot-license"
+#~ msgstr "--explicit-license bylo zrušeno ve prospěch --force-dot-license"
+
+#~ msgid "template {template} could not be found"
+#~ msgstr "šablonu {template} se nepodařilo najít"
+
+#~ msgid "'{path}' is a binary, therefore using '{new_path}' for the header"
+#~ msgstr ""
+#~ "'{path}' je binární soubor, proto použijte '{new_path}' pro hlavičku"
+
+#~ msgid "Downloading {}"
+#~ msgstr "Stahování {}"
 
 #, fuzzy
 #~ msgid "conflicting subparser: %s"
