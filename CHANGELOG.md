@@ -45,8 +45,15 @@ CLI command and its behaviour. There are no guarantees of stability for the
 - Implement handling LicenseRef in `download` and `init`. (#697)
 - Declared support for Python 3.12. (#846)
 - More file types are recognised:
+  - TCL (`.tcl`) (#871)
   - Julia (`.jl`) (#815)
   - Modern Fortran (`.f90`) (#836)
+  - Bazel (`.bzl`) (#870)
+  - GNU Linker script (`.ld`) (#862)
+  - Assembly code (`.s`) (#862)
+  - Empty placeholders (`.empty`) (#862)
+  - ShellCheck configuration (`.shellcheckrc`) (#862)
+  - Pylint in-project configuration (`pylintrc`) (#862)
 - Display recommendations for steps to fix found issues during a lint. (#698)
 - Add support for Pijul VCS. Pijul support is not added to the Docker image.
   (#858)
@@ -54,6 +61,8 @@ CLI command and its behaviour. There are no guarantees of stability for the
   currently exits early. To automatically create a .license file for
   unrecognised files, `--fallback-dot-license` has been added. (#823, #851,
   #853, #859; this took a while to get right.)
+- Ignore `.sl` directory as used by [Sapling SCM](https://sapling-scm.com/).
+  (#867)
 
 ### Changed
 
@@ -87,6 +96,7 @@ CLI command and its behaviour. There are no guarantees of stability for the
 - Reduced python-debian minimum version to 0.1.34. (#808)
 - Fix issue in `annotate` where `--single-line` and `--multi-line` would not
   correctly raise an error with an incompatible comment style. (#853)
+- Fix parsing existing copyright lines when they do not have a year (#861)
 
 ### Security
 
