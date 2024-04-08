@@ -42,7 +42,12 @@ CLI command and its behaviour. There are no guarantees of stability for the
 
 ### Added
 
+- More file types are recognised:
+  - Assembler (`.asm`) (#928)
+
 ### Changed
+
+- `.s` files now use the Python comment style as per GNU Assembler (gas). (#928)
 
 ### Deprecated
 
@@ -51,6 +56,13 @@ CLI command and its behaviour. There are no guarantees of stability for the
 ### Fixed
 
 ### Security
+
+## 3.0.2 - 2024-04-08
+
+### Fixed
+
+- `annotate`'s '`--style` now works again when used for a file with an
+  unrecognised extension. (#909)
 
 ## 3.0.1 - 2024-01-19
 
