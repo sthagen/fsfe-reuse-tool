@@ -533,6 +533,16 @@ class UncommentableCommentStyle(EmptyCommentStyle):
     """
 
 
+class UnixManCommentStyle(CommentStyle):
+    """UNIX manual page comment style."""
+
+    SHORTHAND = "man"
+
+    # In case the below is difficult to read, the comment character is: .\"
+    SINGLE_LINE = r".\""
+    INDENT_AFTER_SINGLE = " "
+
+
 class VelocityCommentStyle(CommentStyle):
     """Apache Velocity Template Language comment style."""
 
@@ -604,7 +614,10 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".cs": CCommentStyle,
     ".csl": HtmlCommentStyle,  # Bibliography (XML based)
     ".css": CssCommentStyle,
+    ".csproj": HtmlCommentStyle,
     ".csv": UncommentableCommentStyle,
+    ".cu": CCommentStyle,
+    ".cuh": CCommentStyle,
     ".cxx": CCommentStyle,
     ".d": CCommentStyle,
     ".dart": CCommentStyle,
@@ -619,6 +632,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".ex": PythonCommentStyle,
     ".exs": PythonCommentStyle,
     ".f": FortranCommentStyle,
+    ".fsproj": HtmlCommentStyle,
     ".f03": ModernFortranCommentStyle,
     ".f08": ModernFortranCommentStyle,
     ".f90": ModernFortranCommentStyle,
@@ -632,11 +646,14 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".ftn": FortranCommentStyle,
     ".fpp": FortranCommentStyle,
     ".fs": CCommentStyle,
+    ".fsx": CCommentStyle,
     ".ftl": FtlCommentStyle,
     ".gemspec": PythonCommentStyle,
     ".go": CCommentStyle,
     ".gradle": CCommentStyle,
     ".graphql": PythonCommentStyle,
+    ".graphqls": PythonCommentStyle,
+    ".gqls": PythonCommentStyle,
     ".groovy": CCommentStyle,
     ".h": CCommentStyle,
     ".ha": CSingleCommentStyle,
@@ -676,6 +693,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".lsp": LispCommentStyle,
     ".lua": HaskellCommentStyle,
     ".m4": M4CommentStyle,
+    ".man": UnixManCommentStyle,
     ".markdown": HtmlCommentStyle,
     ".md": HtmlCommentStyle,
     ".mjs": CCommentStyle,
@@ -714,6 +732,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".pptx": UncommentableCommentStyle,
     ".pri": PythonCommentStyle,
     ".pro": PythonCommentStyle,
+    ".props": HtmlCommentStyle,  # MSBuild files
     ".proto": CCommentStyle,
     ".ps1": PythonCommentStyle,  # TODO: Multiline comments
     ".psm1": PythonCommentStyle,  # TODO: Multiline comments
@@ -752,6 +771,8 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".scsyndef": UncommentableCommentStyle,
     ".sh": PythonCommentStyle,
     ".sld": LispCommentStyle,  # Scheme Library Definition (R7RS)
+    # Visual Studio solution file, officially uncommentable:
+    ".sln": UncommentableCommentStyle,
     ".sls": LispCommentStyle,  # Scheme Library Source (R6RS)
     ".sml": MlCommentStyle,
     ".soy": CCommentStyle,
@@ -776,6 +797,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".ui": HtmlCommentStyle,
     ".v": CCommentStyle,  # V-Lang source code
     ".vala": CCommentStyle,
+    ".vbproj": HtmlCommentStyle,
     ".vim": VimCommentStyle,
     ".vm": VelocityCommentStyle,
     ".vsh": CCommentStyle,  # V-Lang script
@@ -832,6 +854,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     ".yarnrc": PythonCommentStyle,
     "ansible.cfg": PythonCommentStyle,
     "archive.sctxar": UncommentableCommentStyle,  # SuperCollider global archive
+    "Cargo.lock": UncommentableCommentStyle,
     "CMakeLists.txt": PythonCommentStyle,
     "CODEOWNERS": PythonCommentStyle,
     "configure.ac": M4CommentStyle,

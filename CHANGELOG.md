@@ -44,6 +44,13 @@ CLI command and its behaviour. There are no guarantees of stability for the
 
 - More file types are recognised:
   - Assembler (`.asm`) (#928)
+  - GraphQL (`.graphqls`, `.gqls`) (#930)
+  - CUDA-C++ (`.cu`, `.cuh`) (#938)
+  - Various .NET files (`.csproj`, `.fsproj`, `.fsx`, `.props`, `.sln`,
+    `.vbproj`) (#940)
+  - Cargo (`Cargo.lock`) (#937)
+- Added comment styles:
+  - `man` for UNIX Man pages (`.man`) (#954)
 
 ### Changed
 
@@ -54,6 +61,11 @@ CLI command and its behaviour. There are no guarantees of stability for the
 ### Removed
 
 ### Fixed
+
+- Clearer instructions for `--suppress-deprecation` in deprecation warning.
+  (#949)
+- The datetime value for `Created:` was wrongly formatted since 3.0.0. It now
+  returns a correctly formatted ISO 8601 date again. (#952)
 
 ### Security
 

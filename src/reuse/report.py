@@ -228,8 +228,7 @@ class ProjectReport:  # pylint: disable=too-many-instance-attributes
         out.write(f"Creator: Tool: reuse-{__version__}\n")
 
         now = datetime.datetime.now(tz=datetime.timezone.utc)
-        now = now.replace(microsecond=0)
-        out.write(f"Created: {now.isoformat()}Z\n")
+        out.write(f"Created: {now.strftime('%Y-%m-%dT%H:%M:%SZ')}\n")
         out.write(
             "CreatorComment: <text>This document was created automatically"
             " using available reuse information consistent with"
@@ -539,9 +538,11 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
                 {
                     "value": line,
                     "source": reuse_info.source_path,
-                    "source_type": reuse_info.source_type.value
-                    if reuse_info.source_type
-                    else None,
+                    "source_type": (
+                        reuse_info.source_type.value
+                        if reuse_info.source_type
+                        else None
+                    ),
                 }
                 for reuse_info in self.reuse_infos
                 for line in reuse_info.copyright_lines
@@ -550,9 +551,11 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
                 {
                     "value": str(expression),
                     "source": reuse_info.source_path,
-                    "source_type": reuse_info.source_type.value
-                    if reuse_info.source_type
-                    else None,
+                    "source_type": (
+                        reuse_info.source_type.value
+                        if reuse_info.source_type
+                        else None
+                    ),
                 }
                 for reuse_info in self.reuse_infos
                 for expression in reuse_info.spdx_expressions
