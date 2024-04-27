@@ -49,12 +49,17 @@ CLI command and its behaviour. There are no guarantees of stability for the
   - Various .NET files (`.csproj`, `.fsproj`, `.fsx`, `.props`, `.sln`,
     `.vbproj`) (#940)
   - Cargo (`Cargo.lock`) (#937)
+  - Clang-Tidy (`.clang-tidy`) (#961)
 - Added comment styles:
   - `man` for UNIX Man pages (`.man`) (#954)
 
 ### Changed
 
 - `.s` files now use the Python comment style as per GNU Assembler (gas). (#928)
+- Previously, any file that begins with `COPYING` or `LICENSE` was ignored. This
+  has been changed. Now, files like `COPYING_README` are no longer ignored, but
+  `COPYING` and `COPYING.txt` are still ignored (in other words: exact matches,
+  or `COPYING` + a file extension). Idem ditto for `LICENSE`. (#886)
 
 ### Deprecated
 
@@ -66,6 +71,7 @@ CLI command and its behaviour. There are no guarantees of stability for the
   (#949)
 - The datetime value for `Created:` was wrongly formatted since 3.0.0. It now
   returns a correctly formatted ISO 8601 date again. (#952)
+- Support annotating a file that contains only a shebang. (#965)
 
 ### Security
 
