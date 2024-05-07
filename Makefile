@@ -57,12 +57,7 @@ lint-third-party: ## Lint selected third-party repositories to compare with expe
 
 .PHONY: docs
 docs: clean-docs ## generate Sphinx HTML documentation, including API docs
-	poetry export --with docs --without-hashes >docs/requirements.txt
-	$(MAKE) -C docs html
-
-.PHONY: docs-ci
-docs-ci: ## generate Sphinx HTML documentation, including API docs without dependency file generation (for CI)
-	$(MAKE) -C docs html
+	$(MAKE) -C docs html man
 
 .PHONY: dist
 dist: clean-build clean-pyc clean-docs ## builds source and wheel package
@@ -71,7 +66,7 @@ dist: clean-build clean-pyc clean-docs ## builds source and wheel package
 
 .PHONY: create-pot
 create-pot:  ## generate .pot file
-	xgettext --add-comments --from-code=utf-8 --output=po/reuse.pot --files-from=po/POTFILES.in
+	xgettext --add-comments --from-code=utf-8 --output=po/reuse.pot src/reuse/**.py
 	xgettext --add-comments --output=po/argparse.pot /usr/lib*/python3*/argparse.py
 	msgcat --output=po/reuse.pot po/reuse.pot po/argparse.pot
 	for name in po/*.po; do \

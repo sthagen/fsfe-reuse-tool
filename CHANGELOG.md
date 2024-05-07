@@ -42,6 +42,9 @@ CLI command and its behaviour. There are no guarantees of stability for the
 
 ### Added
 
+- Added support for `REUSE.toml`. (#863)
+- Manpages added for all `reuse` commands. Distribution maintainers might wish
+  to distribute the (Sphinx-built) manpages. (#975)
 - More file types are recognised:
   - Assembler (`.asm`) (#928)
   - GraphQL (`.graphqls`, `.gqls`) (#930)
@@ -61,8 +64,14 @@ CLI command and its behaviour. There are no guarantees of stability for the
   has been changed. Now, files like `COPYING_README` are no longer ignored, but
   `COPYING` and `COPYING.txt` are still ignored (in other words: exact matches,
   or `COPYING` + a file extension). Idem ditto for `LICENSE`. (#886)
+- Dependencies added:
+  - `attrs>=21.1` (#863)
+  - `tomlkit>=0.8` (#863)
 
 ### Deprecated
+
+- `.reuse/dep5` is marked deprecated. `reuse convert-dep5` will help you switch
+  to `REUSE.toml`. (#863)
 
 ### Removed
 
@@ -72,6 +81,8 @@ CLI command and its behaviour. There are no guarantees of stability for the
   (#949)
 - The datetime value for `Created:` was wrongly formatted since 3.0.0. It now
   returns a correctly formatted ISO 8601 date again. (#952)
+- Repaired the behaviour of `reuse download` where being inside of a LICENSES/
+  directory should not create a deeper LICENSES/LICENSES/ directory. (#975)
 - Support annotating a file that contains only a shebang. (#965)
 
 ### Security
