@@ -38,7 +38,7 @@ CLI command and its behaviour. There are no guarantees of stability for the
 ### Security
 -->
 
-## Unreleased - YYYY-MM-DD
+## 3.1.0a1 - 2024-05-28
 
 ### Added
 
@@ -56,12 +56,17 @@ CLI command and its behaviour. There are no guarantees of stability for the
   - Java `.properties` files (#968)
   - Apache HTTP server config `.htaccess` files (#985)
   - npm `.npmrc` files (#985)
+  - LaTeX class files (`.cls`) (#971)
 - Added comment styles:
   - `man` for UNIX Man pages (`.man`) (#954)
 - Added `--lines` output option for `lint`. (#956)
+- Treat `% !TEX` and `% !BIB` as shebangs in TeX and BibTeX files, respectively
+  (#971)
 
 ### Changed
 
+- Updated SPDX resources to 3.24.0. (#994)
+- Updated REUSE specification version to 3.2. (#994)
 - `.s` files now use the Python comment style as per GNU Assembler (gas). (#928)
 - Previously, any file that begins with `COPYING` or `LICENSE` was ignored. This
   has been changed. Now, files like `COPYING_README` are no longer ignored, but
@@ -76,8 +81,6 @@ CLI command and its behaviour. There are no guarantees of stability for the
 - `.reuse/dep5` is marked deprecated. `reuse convert-dep5` will help you switch
   to `REUSE.toml`. (#863)
 
-### Removed
-
 ### Fixed
 
 - Clearer instructions for `--suppress-deprecation` in deprecation warning.
@@ -87,8 +90,7 @@ CLI command and its behaviour. There are no guarantees of stability for the
 - Repaired the behaviour of `reuse download` where being inside of a LICENSES/
   directory should not create a deeper LICENSES/LICENSES/ directory. (#975)
 - Support annotating a file that contains only a shebang. (#965)
-
-### Security
+- Add `CONTRIBUTING.md` to the sdist. (#987)
 
 ## 3.0.2 - 2024-04-08
 
