@@ -276,6 +276,45 @@ def test_annotate_no_year(fake_repository, stringio):
     assert simple_file.read_text() == expected
 
 
+@pytest.mark.parametrize(
+    "copyright_prefix", ["--copyright-prefix", "--copyright-style"]
+)
+def test_annotate_copyright_prefix(
+    fake_repository, copyright_prefix, stringio, mock_date_today
+):
+    """Add a header with a specific copyright prefix. Also test the old name of
+    the parameter.
+    """
+    simple_file = fake_repository / "foo.py"
+    simple_file.write_text("pass")
+    expected = cleandoc(
+        """
+        # Copyright 2018 Jane Doe
+        #
+        # SPDX-License-Identifier: GPL-3.0-or-later
+
+        pass
+        """
+    )
+
+    result = main(
+        [
+            "annotate",
+            "--license",
+            "GPL-3.0-or-later",
+            "--copyright",
+            "Jane Doe",
+            copyright_prefix,
+            "string",
+            "foo.py",
+        ],
+        out=stringio,
+    )
+
+    assert result == 0
+    assert simple_file.read_text() == expected
+
+
 def test_annotate_shebang(fake_repository, stringio):
     """Keep the shebang when annotating."""
     simple_file = fake_repository / "foo.py"
@@ -443,7 +482,7 @@ def test_annotate_specify_style(fake_repository, stringio, mock_date_today):
             "--copyright",
             "Jane Doe",
             "--style",
-            "c",
+            "cpp",
             "foo.py",
         ],
         out=stringio,
@@ -1533,6 +1572,56 @@ def test_annotate_exit_if_unrecognised(
         )
 
     assert "Jane Doe" not in (fake_repository / "baz/foo.py").read_text()
+
+
+def test_annotate_csingle(fake_repository, stringio, mock_date_today):
+    """Old csingle style is identical to new cppsingle style.
+
+    Remove this in the 4.0 major release.
+    """
+    (fake_repository / "csingle.py").write_text("pass")
+    (fake_repository / "cppsingle.py").write_text("pass")
+
+    for style in ["csingle", "cppsingle"]:
+        main(
+            [
+                "annotate",
+                "--copyright",
+                "Jane Doe",
+                "--style",
+                style,
+                f"{style}.py",
+            ]
+        )
+
+    assert (fake_repository / "csingle.py").read_text() == (
+        fake_repository / "cppsingle.py"
+    ).read_text()
+
+
+def test_annotate_css(fake_repository, stringio, mock_date_today):
+    """Old css style is identical to new c style.
+
+    Remove this in the 4.0 major release.
+    """
+    (fake_repository / "css.py").write_text("pass")
+    (fake_repository / "c.py").write_text("pass")
+
+    for style in ["css", "c"]:
+        main(
+            [
+                "annotate",
+                "--copyright",
+                "Jane Doe",
+                "--style",
+                style,
+                f"{style}.py",
+            ]
+        )
+
+    assert (fake_repository / "css.py").read_text() == (
+        fake_repository / "c.py"
+    ).read_text()
 
 
 # REUSE-IgnoreEnd

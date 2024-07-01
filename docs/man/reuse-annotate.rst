@@ -39,7 +39,7 @@ The tool tries to auto-detect the comment style to use from the file extension
 of a file, and use that comment style.
 
 Normally, the tool uses a single-line comment style when one is available (e.g.,
-``//`` is used instead of ``/* ... */`` for C comment styles). If no single-line
+``//`` is used instead of ``/* ... */`` for C++ comment styles). If no single-line
 comment style is available, a multi-line style is used.
 
 Mandatory options
@@ -51,7 +51,7 @@ information which the tool will add to the file(s).
 .. option:: -c, --copyright COPYRIGHT
 
   A copyright holder. This does not contain the year or the copyright prefix.
-  See :option:`--year` and :option:`--copyright-style` for the year and prefix.
+  See :option:`--year` and :option:`--copyright-prefix` for the year and prefix.
   This option can be repeated.
 
 .. option:: -l, --license LICENSE
@@ -77,10 +77,10 @@ Other options
   files. This is useful when a file extension is not recognised, or when a file
   extension is associated with a comment style that you disagree with.
 
-.. option:: --copyright-style STYLE
+.. option:: --copyright-prefix PREFIX
 
   The prefix to use in the copyright statement. If not defined, ``spdx`` is used
-  as prefix. The available copyright styles are:
+  as prefix. The available copyright prefixes are:
 
   .. code-block::
 
