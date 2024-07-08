@@ -17,6 +17,7 @@
 # SPDX-FileCopyrightText: 2023 Redradix S.L. <info@redradix.com>
 # SPDX-FileCopyrightText: 2023 Shun Sakai <sorairolake@protonmail.ch>
 # SPDX-FileCopyrightText: 2024 Rivos Inc.
+# SPDX-FileCopyrightText: 2024 Anthony Loiseau <anthony.loiseau@allcircuits.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -677,6 +678,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".ino": CppCommentStyle,
     ".ipynb": UncommentableCommentStyle,
     ".iuml": PlantUmlCommentStyle,
+    ".j2": JinjaCommentStyle,
     ".java": CppCommentStyle,
     ".jinja": JinjaCommentStyle,
     ".jinja2": JinjaCommentStyle,
@@ -695,7 +697,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".kts": CppCommentStyle,
     ".l": LispCommentStyle,
     ".latex": TexCommentStyle,
-    ".ld": CppCommentStyle,
+    ".ld": CCommentStyle,
     ".less": CCommentStyle,
     ".license": EmptyCommentStyle,
     ".lisp": LispCommentStyle,
@@ -768,7 +770,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".rs": CppCommentStyle,
     ".rss": HtmlCommentStyle,
     ".rst": ReStructedTextCommentStyle,
-    ".s": PythonCommentStyle,  # Assume GNU Assembler for x86
+    ".s": CCommentStyle,
     ".sass": CCommentStyle,
     ".sbt": CppCommentStyle,
     ".sc": CppCommentStyle,  # SuperCollider source file
@@ -892,6 +894,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     "manifest": PythonCommentStyle,  # used by cdist
     "meson.build": PythonCommentStyle,
     "meson_options.txt": PythonCommentStyle,
+    "poetry.lock": UncommentableCommentStyle,
     "pubspec.lock": UncommentableCommentStyle,
     "pylintrc": PythonCommentStyle,
     "Rakefile": PythonCommentStyle,

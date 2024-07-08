@@ -31,7 +31,7 @@ try:
     __version__ = version("reuse")
 except PackageNotFoundError:
     # package is not installed
-    __version__ = "4.0.2"
+    __version__ = "4.0.3"
 
 __author__ = "Carmen Bianca Bakker"
 __email__ = "carmenbianca@fsfe.org"
@@ -68,7 +68,6 @@ _IGNORE_FILE_PATTERNS = [
     re.compile(r"^COPYING(\..*)?$"),
     # ".git" as file happens in submodules
     re.compile(r"^\.git$"),
-    re.compile(r"^\.gitkeep$"),
     re.compile(r"^\.hgtags$"),
     re.compile(r".*\.license$"),
     # Workaround for https://github.com/fsfe/reuse-tool/issues/229

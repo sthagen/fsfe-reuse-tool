@@ -7,7 +7,7 @@
 
 [tool.poetry]
 name = "reuse"
-version = "4.0.2"
+version = "4.0.3"
 description = "reuse is a tool for compliance with the REUSE recommendations."
 authors = [
     "Free Software Foundation Europe <contact@fsfe.org>",
@@ -59,7 +59,7 @@ binaryornot = ">=0.4.4"
 license-expression = ">=1.0"
 python-debian = ">=0.1.34,!=0.1.45,!=0.1.46,!=0.1.47"
 tomlkit = ">=0.8"
-attrs = ">=21.1"
+attrs = ">=21.3"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=6.0.0"
@@ -103,7 +103,7 @@ requires = ["poetry-core>=1.1.0"]
 build-backend = "poetry.core.masonry.api"
 
 [bumpver]
-current_version = "v4.0.2"
+current_version = "v4.0.3"
 version_pattern = "vMAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "Bump version: {old_version} → {new_version}"
 tag_message = "{new_version}"
