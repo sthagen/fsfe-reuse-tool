@@ -7,6 +7,7 @@
 # SPDX-FileCopyrightText: 2023 DB Systel GmbH
 # SPDX-FileCopyrightText: 2023 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
 # SPDX-FileCopyrightText: 2024 Rivos Inc.
+# SPDX-FileCopyrightText: 2024 Skyler Grey <sky@a.starrysky.fyi>
 # SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -61,6 +62,7 @@ StrPath = Union[str, PathLike]
 
 GIT_EXE = shutil.which("git")
 HG_EXE = shutil.which("hg")
+JUJUTSU_EXE = shutil.which("jj")
 PIJUL_EXE = shutil.which("pijul")
 
 REUSE_IGNORE_START = "REUSE-IgnoreStart"
@@ -114,12 +116,13 @@ _SPDX_TAGS: Dict[str, re.Pattern] = {
 
 _COPYRIGHT_PATTERNS = [
     re.compile(
-        r"(?P<copyright>(?P<prefix>SPDX-(File|Snippet)CopyrightText:)\s+"
+        r"(?P<copyright>(?P<prefix>SPDX-(File|Snippet)CopyrightText:"
+        r"(\s(\([Cc]\)|©|Copyright(\s(©|\([Cc]\)))?))?)\s+"
         r"((?P<year>\d{4} ?- ?\d{4}|\d{4}),?\s+)?"
         r"(?P<statement>.*?))" + _END_PATTERN
     ),
     re.compile(
-        r"(?P<copyright>(?P<prefix>Copyright(\s?\([cC]\))?)\s+"
+        r"(?P<copyright>(?P<prefix>Copyright(\s(\([Cc]\)|©))?)\s+"
         r"((?P<year>\d{4} ?- ?\d{4}|\d{4}),?\s+)?"
         r"(?P<statement>.*?))" + _END_PATTERN
     ),
@@ -132,6 +135,9 @@ _COPYRIGHT_PATTERNS = [
 _COPYRIGHT_PREFIXES = {
     "spdx": "SPDX-FileCopyrightText:",
     "spdx-c": "SPDX-FileCopyrightText: (C)",
+    "spdx-string-c": "SPDX-FileCopyrightText: Copyright (C)",
+    "spdx-string": "SPDX-FileCopyrightText: Copyright",
+    "spdx-string-symbol": "SPDX-FileCopyrightText: Copyright ©",
     "spdx-symbol": "SPDX-FileCopyrightText: ©",
     "string": "Copyright",
     "string-c": "Copyright (C)",
@@ -311,6 +317,7 @@ def merge_copyright_lines(copyright_lines: Set[str]) -> Set[str]:
                         "prefix": match.groupdict()["prefix"],
                     }
                 )
+                break
 
     copyright_out = set()
     for line_info in copyright_in:
