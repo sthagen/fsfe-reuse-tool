@@ -19,7 +19,7 @@ recommendations.
 - Documentation: <https://reuse.readthedocs.io> and <https://reuse.software>
 - Source code: <https://github.com/fsfe/reuse-tool>
 - PyPI: <https://pypi.python.org/pypi/reuse>
-- REUSE: 3.2
+- REUSE: 3.3
 - Python: 3.8+
 
 ## Table of contents
@@ -179,7 +179,7 @@ To check against the recommendations, use `reuse lint`:
 ~/Projects/reuse-tool $ reuse lint
 [...]
 
-Congratulations! Your project is compliant with version 3.2 of the REUSE Specification :-)
+Congratulations! Your project is compliant with version 3.3 of the REUSE Specification :-)
 ```
 
 This tool can do various more things, detailed in the documentation. Here a
@@ -247,7 +247,7 @@ Git. This uses [pre-commit](https://pre-commit.com/). Once you
 ```yaml
 repos:
   - repo: https://github.com/fsfe/reuse-tool
-    rev: v3.0.2
+    rev: v4.0.3
     hooks:
       - id: reuse
 ```
@@ -255,6 +255,17 @@ repos:
 Then run `pre-commit install`. Now, every time you commit, `reuse lint` is run
 in the background, and will prevent your commit from going through if there was
 an error.
+
+If you instead want to only lint files that were changed in your commit, you can
+use the following configuration:
+
+```yaml
+repos:
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v4.0.3
+    hooks:
+      - id: reuse-lint-file
+```
 
 ## Maintainers
 

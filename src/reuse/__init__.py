@@ -36,7 +36,7 @@ except PackageNotFoundError:
 __author__ = "Carmen Bianca Bakker"
 __email__ = "carmenbianca@fsfe.org"
 __license__ = "Apache-2.0 AND CC0-1.0 AND CC-BY-SA-4.0 AND GPL-3.0-or-later"
-__REUSE_version__ = "3.2"
+__REUSE_version__ = "3.3"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,8 +64,9 @@ _IGNORE_MESON_PARENT_DIR_PATTERNS = [
 ]
 
 _IGNORE_FILE_PATTERNS = [
-    re.compile(r"^LICENSE(\..*)?$"),
-    re.compile(r"^COPYING(\..*)?$"),
+    # LICENSE, LICENSE-MIT, LICENSE.txt
+    re.compile(r"^LICEN[CS]E([-\.].*)?$"),
+    re.compile(r"^COPYING([-\.].*)?$"),
     # ".git" as file happens in submodules
     re.compile(r"^\.git$"),
     re.compile(r"^\.hgtags$"),
