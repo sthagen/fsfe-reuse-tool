@@ -15,7 +15,7 @@ import os
 from abc import ABC, abstractmethod
 from inspect import isclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator, Optional, Set, Type
+from typing import TYPE_CHECKING, Generator, Optional, Type
 
 from ._util import (
     GIT_EXE,
@@ -24,6 +24,7 @@ from ._util import (
     PIJUL_EXE,
     StrPath,
     execute_command,
+    relative_from_root,
 )
 
 if TYPE_CHECKING:
@@ -37,9 +38,8 @@ class VCSStrategy(ABC):
 
     EXE: str | None = None
 
-    @abstractmethod
-    def __init__(self, project: Project):
-        self.project = project
+    def __init__(self, root: StrPath):
+        self.root = Path(root)
 
     @abstractmethod
     def is_ignored(self, path: StrPath) -> bool:
@@ -72,10 +72,6 @@ class VCSStrategy(ABC):
 class VCSStrategyNone(VCSStrategy):
     """Strategy that is used when there is no VCS."""
 
-    def __init__(self, project: Project):
-        # pylint: disable=useless-super-delegation
-        super().__init__(project)
-
     def is_ignored(self, path: StrPath) -> bool:
         return False
 
@@ -96,14 +92,14 @@ class VCSStrategyGit(VCSStrategy):
 
     EXE = GIT_EXE
 
-    def __init__(self, project: Project):
-        super().__init__(project)
+    def __init__(self, root: StrPath):
+        super().__init__(root)
         if not self.EXE:
             raise FileNotFoundError("Could not find binary for Git")
         self._all_ignored_files = self._find_all_ignored_files()
         self._submodules = self._find_submodules()
 
-    def _find_all_ignored_files(self) -> Set[Path]:
+    def _find_all_ignored_files(self) -> set[Path]:
         """Return a set of all files ignored by git. If a whole directory is
         ignored, don't return all files inside of it.
         """
@@ -121,11 +117,11 @@ class VCSStrategyGit(VCSStrategy):
             # Separate output with \0 instead of \n.
             "-z",
         ]
-        result = execute_command(command, _LOGGER, cwd=self.project.root)
+        result = execute_command(command, _LOGGER, cwd=self.root)
         all_files = result.stdout.decode("utf-8").split("\0")
         return {Path(file_) for file_ in all_files}
 
-    def _find_submodules(self) -> Set[Path]:
+    def _find_submodules(self) -> set[Path]:
         command = [
             str(self.EXE),
             "config",
@@ -135,7 +131,7 @@ class VCSStrategyGit(VCSStrategy):
             "--get-regexp",
             r"\.path$",
         ]
-        result = execute_command(command, _LOGGER, cwd=self.project.root)
+        result = execute_command(command, _LOGGER, cwd=self.root)
         # The final element may be an empty string. Filter it.
         submodule_entries = [
             entry
@@ -146,12 +142,12 @@ class VCSStrategyGit(VCSStrategy):
         return {Path(entry.splitlines()[1]) for entry in submodule_entries}
 
     def is_ignored(self, path: StrPath) -> bool:
-        path = self.project.relative_from_root(path)
+        path = relative_from_root(path, self.root)
         return path in self._all_ignored_files
 
     def is_submodule(self, path: StrPath) -> bool:
         return any(
-            self.project.relative_from_root(path).resolve()
+            relative_from_root(path, self.root).resolve()
             == submodule_path.resolve()
             for submodule_path in self._submodules
         )
@@ -189,13 +185,13 @@ class VCSStrategyHg(VCSStrategy):
 
     EXE = HG_EXE
 
-    def __init__(self, project: Project):
-        super().__init__(project)
+    def __init__(self, root: StrPath):
+        super().__init__(root)
         if not self.EXE:
             raise FileNotFoundError("Could not find binary for Mercurial")
         self._all_ignored_files = self._find_all_ignored_files()
 
-    def _find_all_ignored_files(self) -> Set[Path]:
+    def _find_all_ignored_files(self) -> set[Path]:
         """Return a set of all files ignored by mercurial. If a whole directory
         is ignored, don't return all files inside of it.
         """
@@ -211,12 +207,12 @@ class VCSStrategyHg(VCSStrategy):
             "--no-status",
             "--print0",
         ]
-        result = execute_command(command, _LOGGER, cwd=self.project.root)
+        result = execute_command(command, _LOGGER, cwd=self.root)
         all_files = result.stdout.decode("utf-8").split("\0")
         return {Path(file_) for file_ in all_files}
 
     def is_ignored(self, path: StrPath) -> bool:
-        path = self.project.relative_from_root(path)
+        path = relative_from_root(path, self.root)
         return path in self._all_ignored_files
 
     def is_submodule(self, path: StrPath) -> bool:
@@ -256,23 +252,23 @@ class VCSStrategyJujutsu(VCSStrategy):
 
     EXE = JUJUTSU_EXE
 
-    def __init__(self, project: Project):
-        super().__init__(project)
+    def __init__(self, root: StrPath):
+        super().__init__(root)
         if not self.EXE:
             raise FileNotFoundError("Could not find binary for Jujutsu")
         self._all_tracked_files = self._find_all_tracked_files()
 
-    def _find_all_tracked_files(self) -> Set[Path]:
+    def _find_all_tracked_files(self) -> set[Path]:
         """
         Return a set of all files tracked in the current jj revision
         """
         command = [str(self.EXE), "files"]
-        result = execute_command(command, _LOGGER, cwd=self.project.root)
+        result = execute_command(command, _LOGGER, cwd=self.root)
         all_files = result.stdout.decode("utf-8").split("\n")
         return {Path(file_) for file_ in all_files if file_}
 
     def is_ignored(self, path: StrPath) -> bool:
-        path = self.project.relative_from_root(path)
+        path = relative_from_root(path, self.root)
 
         for tracked in self._all_tracked_files:
             if tracked.parts[: len(path.parts)] == path.parts:
@@ -321,21 +317,21 @@ class VCSStrategyPijul(VCSStrategy):
 
     EXE = PIJUL_EXE
 
-    def __init__(self, project: Project):
-        super().__init__(project)
+    def __init__(self, root: StrPath):
+        super().__init__(root)
         if not self.EXE:
             raise FileNotFoundError("Could not find binary for Pijul")
         self._all_tracked_files = self._find_all_tracked_files()
 
-    def _find_all_tracked_files(self) -> Set[Path]:
+    def _find_all_tracked_files(self) -> set[Path]:
         """Return a set of all files tracked by pijul."""
         command = [str(self.EXE), "list"]
-        result = execute_command(command, _LOGGER, cwd=self.project.root)
+        result = execute_command(command, _LOGGER, cwd=self.root)
         all_files = result.stdout.decode("utf-8").splitlines()
         return {Path(file_) for file_ in all_files}
 
     def is_ignored(self, path: StrPath) -> bool:
-        path = self.project.relative_from_root(path)
+        path = relative_from_root(path, self.root)
         return path not in self._all_tracked_files
 
     def is_submodule(self, path: StrPath) -> bool:

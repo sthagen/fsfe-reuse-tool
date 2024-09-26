@@ -3,19 +3,22 @@
 # SPDX-FileCopyrightText: 2024 Carmen Bianca BAKKER <carmenbianca@fsfe.org>
 # SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
 # SPDX-FileCopyrightText: 2024 Kerry McAdams <github@klmcadams>
+# SPDX-FileCopyrightText: 2024 Emil Velikov <emil.l.velikov@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """Entry functions for reuse."""
 
 import argparse
+import contextlib
 import logging
 import os
 import sys
 import warnings
 from gettext import gettext as _
 from pathlib import Path
-from typing import IO, Callable, List, Optional, Type, cast
+from types import ModuleType
+from typing import IO, Callable, Optional, Type, cast
 
 from . import (
     __REUSE_version__,
@@ -31,8 +34,12 @@ from . import (
 from ._format import INDENT, fill_all, fill_paragraph
 from ._util import PathType, setup_logging
 from .global_licensing import GlobalLicensingParseError
-from .project import GlobalLicensingConflict, GlobalLicensingFound, Project
+from .project import GlobalLicensingConflict, Project
 from .vcs import find_root
+
+shtab: Optional[ModuleType] = None
+with contextlib.suppress(ImportError):
+    import shtab  # type: ignore[no-redef,import-not-found]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -103,6 +110,9 @@ def parser() -> argparse.ArgumentParser:
         type=PathType("r", force_directory=True),
         help=_("define root of project"),
     )
+    if shtab:
+        # This is magic. Running `reuse -s bash` now prints bash completions.
+        shtab.add_argument_to(parser, ["-s", "--print-completion"])
     parser.add_argument(
         "--version",
         action="store_true",
@@ -219,7 +229,7 @@ def add_command(  # pylint: disable=too-many-arguments,redefined-builtin
     formatter_class: Optional[Type[argparse.HelpFormatter]] = None,
     description: Optional[str] = None,
     help: Optional[str] = None,
-    aliases: Optional[List[str]] = None,
+    aliases: Optional[list[str]] = None,
 ) -> None:
     """Add a subparser for a command."""
     if formatter_class is None:
@@ -236,10 +246,10 @@ def add_command(  # pylint: disable=too-many-arguments,redefined-builtin
     subparser.set_defaults(parser=subparser)
 
 
-def main(args: Optional[List[str]] = None, out: IO[str] = sys.stdout) -> int:
+def main(args: Optional[list[str]] = None, out: IO[str] = sys.stdout) -> int:
     """Main entry function."""
     if args is None:
-        args = cast(List[str], sys.argv[1:])
+        args = cast(list[str], sys.argv[1:])
 
     main_parser = parser()
     parsed_args = main_parser.parse_args(args)
@@ -267,18 +277,12 @@ def main(args: Optional[List[str]] = None, out: IO[str] = sys.stdout) -> int:
         project = Project.from_directory(root)
     # FileNotFoundError and NotADirectoryError don't need to be caught because
     # argparse already made sure of these things.
-    except UnicodeDecodeError:
-        found = cast(GlobalLicensingFound, Project.find_global_licensing(root))
-        main_parser.error(
-            _("'{path}' could not be decoded as UTF-8.").format(path=found.path)
-        )
     except GlobalLicensingParseError as error:
-        found = cast(GlobalLicensingFound, Project.find_global_licensing(root))
         main_parser.error(
             _(
                 "'{path}' could not be parsed. We received the following error"
                 " message: {message}"
-            ).format(path=found.path, message=str(error))
+            ).format(path=error.source, message=str(error))
         )
     except GlobalLicensingConflict as error:
         main_parser.error(str(error))
