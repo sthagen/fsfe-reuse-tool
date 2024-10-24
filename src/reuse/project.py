@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2023 Matthias Riße
 # SPDX-FileCopyrightText: 2023 DB Systel GmbH
 # SPDX-FileCopyrightText: 2024 Kerry McAdams <github@klmcadams>
+# SPDX-FileCopyrightText: 2024 Linnea Gräf
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -23,17 +24,13 @@ from binaryornot.check import is_binary
 
 from . import ReuseInfo
 from ._licenses import EXCEPTION_MAP, LICENSE_MAP
-from ._util import (
-    _LICENSEREF_PATTERN,
-    _determine_license_path,
-    relative_from_root,
-    reuse_info_of_file,
-)
+from ._util import _determine_license_path, relative_from_root
 from .covered_files import iter_files
 from .exceptions import (
     GlobalLicensingConflictError,
     SpdxIdentifierNotFoundError,
 )
+from .extract import _LICENSEREF_PATTERN, reuse_info_of_file
 from .global_licensing import (
     GlobalLicensing,
     NestedReuseTOML,
@@ -247,7 +244,7 @@ class Project:
 
         # Search the global licensing file for REUSE information.
         if self.global_licensing:
-            relpath = self.relative_from_root(path)
+            relpath = self.relative_from_root(original_path)
             global_results = defaultdict(
                 list, self.global_licensing.reuse_info_of(relpath)
             )
