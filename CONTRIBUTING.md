@@ -111,11 +111,13 @@ possible, run `poetry lock --no-update`.
 
 ## Release checklist
 
-- Verify changelog
 - Create branch release-x.y.z
 - `bumpver update --set-version vx.y.z`
 - `make update-resources`
+- `protokolo compile -f version vx.y.z`
 - Alter changelog
+- `poetry lock` (otherwise documentation won't generate;
+  <https://github.com/readthedocs/readthedocs.org/issues/11624>)
 - Do some final tweaks/bugfixes (and alter changelog)
 - `make test-release`
 - `pip install -i https://test.pypi.org/simple reuse` and test the package.
