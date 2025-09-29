@@ -18,10 +18,10 @@ import os
 import shutil
 import subprocess
 import sys
+from collections.abc import Generator
 from inspect import cleandoc
 from io import StringIO
 from pathlib import Path
-from typing import Generator, Optional
 from unittest.mock import create_autospec
 
 import pytest
@@ -39,6 +39,7 @@ try:
 except ImportError:
     sys.path.append(os.path.join(Path(__file__).parent.parent, "src"))
 finally:
+    from reuse import report
     from reuse._util import setup_logging
     from reuse.global_licensing import ReuseDep5
     from reuse.vcs import GIT_EXE, HG_EXE, JUJUTSU_EXE, PIJUL_EXE
@@ -82,6 +83,9 @@ def pytest_configure(config):
     loglevel = config.getoption("loglevel")
     setup_logging(level=logging.getLevelName(loglevel))
 
+    # Disable parallelisation during tests.
+    report.ENABLE_PARALLEL = False
+
 
 def pytest_runtest_setup(item):
     """Called before running a test."""
@@ -110,9 +114,7 @@ def git_exe() -> str:
 
 
 @pytest.fixture(params=[True, False])
-def optional_git_exe(
-    request, monkeypatch
-) -> Generator[Optional[str], None, None]:
+def optional_git_exe(request, monkeypatch) -> Generator[str | None, None, None]:
     """Run the test with or without git."""
     exe = GIT_EXE if request.param else ""
     monkeypatch.setattr("reuse.vcs.GIT_EXE", exe)
@@ -128,9 +130,7 @@ def hg_exe() -> str:
 
 
 @pytest.fixture(params=[True, False])
-def optional_hg_exe(
-    request, monkeypatch
-) -> Generator[Optional[str], None, None]:
+def optional_hg_exe(request, monkeypatch) -> Generator[str | None, None, None]:
     """Run the test with or without mercurial."""
     exe = HG_EXE if request.param else ""
     monkeypatch.setattr("reuse.vcs.HG_EXE", exe)
@@ -148,7 +148,7 @@ def jujutsu_exe() -> str:
 @pytest.fixture(params=[True, False])
 def optional_jujutsu_exe(
     request, monkeypatch
-) -> Generator[Optional[str], None, None]:
+) -> Generator[str | None, None, None]:
     """Run the test with or without Jujutsu."""
     exe = JUJUTSU_EXE if request.param else ""
     monkeypatch.setattr("reuse.vcs.JUJUTSU_EXE", exe)
@@ -166,7 +166,7 @@ def pijul_exe() -> str:
 @pytest.fixture(params=[True, False])
 def optional_pijul_exe(
     request, monkeypatch
-) -> Generator[Optional[str], None, None]:
+) -> Generator[str | None, None, None]:
     """Run the test with or without Pijul."""
     exe = PIJUL_EXE if request.param else ""
     monkeypatch.setattr("reuse.vcs.PIJUL_EXE", exe)
@@ -176,6 +176,7 @@ def optional_pijul_exe(
 @pytest.fixture(params=[True, False])
 def multiprocessing(request, monkeypatch) -> Generator[bool, None, None]:
     """Run the test with or without multiprocessing."""
+    monkeypatch.setattr("reuse.report.ENABLE_PARALLEL", True)
     if not request.param:
         monkeypatch.delattr(concurrent.futures, "ProcessPoolExecutor")
     yield request.param

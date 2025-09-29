@@ -15,21 +15,13 @@ import contextlib
 import datetime
 import logging
 import random
+from collections.abc import Collection, Generator
 from concurrent.futures import ProcessPoolExecutor
 from hashlib import md5
 from io import StringIO
 from os import cpu_count
 from pathlib import Path, PurePath
-from typing import (
-    Any,
-    Collection,
-    Final,
-    Generator,
-    NamedTuple,
-    Optional,
-    Protocol,
-    cast,
-)
+from typing import Any, Final, NamedTuple, Optional, Protocol, cast
 from uuid import uuid4
 
 from . import _LICENSING, __REUSE_version__, __version__
@@ -49,6 +41,10 @@ _LOGGER = logging.getLogger(__name__)
 LINT_VERSION = "1.0"
 
 _CPU_COUNT: Final[int] = cpu_count() or 1
+#: This variable exists to be able to override parallelisation. If set to
+#: :const:`False`, generating :method:`FileReport.generate` will not use
+#: parallelisation.
+ENABLE_PARALLEL = True
 
 
 class _MultiprocessingContainer:
@@ -82,7 +78,7 @@ class _MultiprocessingContainer:
             self.has_dep5 = False
             self.project = project
 
-        self.reuse_dep5: Optional[ReuseDep5] = None
+        self.reuse_dep5: ReuseDep5 | None = None
         self.do_checksum = do_checksum
         self.add_license_concluded = add_license_concluded
 
@@ -116,13 +112,13 @@ class _MultiprocessingResult(NamedTuple):
 
     path: StrPath
     report: Optional["FileReport"]
-    error: Optional[Exception]
+    error: Exception | None
 
 
 def _generate_file_reports(
     project: Project,
     do_checksum: bool = True,
-    subset_files: Optional[Collection[StrPath]] = None,
+    subset_files: Collection[StrPath] | None = None,
     multiprocessing: bool = _CPU_COUNT > 1,
     add_license_concluded: bool = False,
 ) -> Generator[_MultiprocessingResult, None, None]:
@@ -138,13 +134,13 @@ def _generate_file_reports(
         if subset_files is not None
         else project.all_files()
     )
-    if multiprocessing:
-        files_list = list(files)
+    if multiprocessing and ENABLE_PARALLEL:
+        files_set = frozenset(files)
         with ProcessPoolExecutor() as executor:
             yield from executor.map(
                 container,
-                files_list,
-                chunksize=max(1, int(len(files_list) / _CPU_COUNT / 4)),
+                files_set,
+                chunksize=max(1, int(len(files_set) / _CPU_COUNT / 4)),
             )
     else:
         yield from map(container, files)
@@ -206,11 +202,11 @@ class ProjectReport:  # pylint: disable=too-many-instance-attributes
 
         self.do_checksum = do_checksum
 
-        self._unused_licenses: Optional[set[str]] = None
-        self._used_licenses: Optional[set[str]] = None
-        self._files_without_licenses: Optional[set[Path]] = None
-        self._files_without_copyright: Optional[set[Path]] = None
-        self._is_compliant: Optional[bool] = None
+        self._unused_licenses: set[str] | None = None
+        self._used_licenses: set[str] | None = None
+        self._files_without_licenses: set[Path] | None = None
+        self._files_without_copyright: set[Path] | None = None
+        self._is_compliant: bool | None = None
 
     def to_dict_lint(self) -> dict[str, Any]:
         """Collects and formats data relevant to linting from report and returns
@@ -291,8 +287,8 @@ class ProjectReport:  # pylint: disable=too-many-instance-attributes
 
     def bill_of_materials(
         self,
-        creator_person: Optional[str] = None,
-        creator_organization: Optional[str] = None,
+        creator_person: str | None = None,
+        creator_organization: str | None = None,
     ) -> str:
         """Generate a bill of materials from the project.
 
@@ -449,7 +445,7 @@ class ProjectReport:  # pylint: disable=too-many-instance-attributes
             for lic in self.licenses
             if not any(
                 identifier in self.used_licenses
-                for identifier in set((lic, _add_plus_to_identifier(lic)))
+                for identifier in (lic, _add_plus_to_identifier(lic))
             )
         }
         return self._unused_licenses
@@ -677,8 +673,8 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
 
         self.reuse_infos: list[ReuseInfo] = []
 
-        self.spdx_id: Optional[str] = None
-        self.chk_sum: Optional[str] = None
+        self.spdx_id: str | None = None
+        self.chk_sum: str | None = None
         self.licenses_in_file: list[str] = []
         self.license_concluded: str = ""
         self.copyright: str = ""
@@ -694,7 +690,7 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
             "path": PurePath(self.name).as_posix(),
             "copyrights": [
                 {
-                    "value": line,
+                    "value": str(line),
                     "source": reuse_info.source_path,
                     "source_type": (
                         reuse_info.source_type.value
@@ -703,7 +699,7 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
                     ),
                 }
                 for reuse_info in self.reuse_infos
-                for line in reuse_info.copyright_lines
+                for line in reuse_info.copyright_notices
             ],
             "spdx_expressions": [
                 {
@@ -795,10 +791,13 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
 
         # Copyright text
         report.copyright = "\n".join(
-            sorted(
-                line
-                for reuse_info in reuse_infos
-                for line in reuse_info.copyright_lines
+            map(
+                str,
+                sorted(
+                    line
+                    for reuse_info in reuse_infos
+                    for line in reuse_info.copyright_notices
+                ),
             )
         )
         # Source of licensing and copyright info
@@ -811,7 +810,7 @@ class FileReport:  # pylint: disable=too-many-instance-attributes
         return super().__hash__()
 
 
-def format_creator(creator: Optional[str]) -> str:
+def format_creator(creator: str | None) -> str:
     """Render the creator field based on the provided flag"""
     if creator is None:
         return "Anonymous ()"

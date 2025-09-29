@@ -6,7 +6,7 @@
 :class:`ReuseError`.
 """
 
-from typing import Any, Optional
+from typing import Any
 
 
 class ReuseError(Exception):
@@ -22,7 +22,7 @@ class GlobalLicensingParseError(ReuseError):
     parse a :class:`reuse.global_licensing.GlobalLicensing` file.
     """
 
-    def __init__(self, *args: Any, source: Optional[str] = None):
+    def __init__(self, *args: Any, source: str | None = None):
         super().__init__(*args)
         self.source = source
 
@@ -53,9 +53,22 @@ class CommentError(ReuseError):
     """An error occurred during an interaction with a comment."""
 
 
-class CommentCreateError(Exception):
+class CommentCreateError(CommentError):
     """An error occurred during the creation of a comment."""
 
 
-class CommentParseError(Exception):
+class CommentParseError(CommentError):
     """An error occurred during the parsing of a comment."""
+
+
+class CopyrightNoticeParseError(ReuseError):
+    """Error for parsing a :class:`reuse.copyright.CopyrightNotice` from a
+    string.
+    """
+
+
+class YearRangeParseError(CopyrightNoticeParseError):
+    """Error for parsing a :class:`reuse.copyright.YearRange` from a string.
+    Because a year range is typically a constituent part of a copyright notice,
+    this error is a subclass of :class:`CopyrightNoticeParseError`.
+    """

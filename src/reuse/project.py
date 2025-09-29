@@ -16,15 +16,16 @@ import logging
 import os
 import warnings
 from collections import defaultdict
+from collections.abc import Collection, Iterator
 from pathlib import Path
-from typing import Collection, Iterator, NamedTuple, Optional, Type
+from typing import NamedTuple
 
 import attrs
 from binaryornot.check import is_binary
 
-from . import ReuseInfo
 from ._licenses import EXCEPTION_MAP, LICENSE_MAP
 from ._util import _determine_license_path, relative_from_root
+from .copyright import ReuseInfo
 from .covered_files import iter_files
 from .exceptions import (
     GlobalLicensingConflictError,
@@ -47,7 +48,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class GlobalLicensingFound(NamedTuple):
     path: Path
-    cls: Type[GlobalLicensing]
+    cls: type[GlobalLicensing]
 
 
 # TODO: The information (root, include_submodules, include_meson_subprojects,
@@ -64,7 +65,7 @@ class Project:
     include_submodules: bool = False
     include_meson_subprojects: bool = False
     vcs_strategy: VCSStrategy = attrs.field()
-    global_licensing: Optional[GlobalLicensing] = None
+    global_licensing: GlobalLicensing | None = None
 
     # TODO: I want to get rid of these, or somehow refactor this mess.
     license_map: dict[str, dict] = attrs.field()
@@ -125,7 +126,7 @@ class Project:
 
         vcs_strategy = cls._detect_vcs_strategy(root)
 
-        global_licensing: Optional[GlobalLicensing] = None
+        global_licensing: GlobalLicensing | None = None
         found = cls.find_global_licensing(
             root,
             include_submodules=include_submodules,
@@ -153,7 +154,7 @@ class Project:
 
         return project
 
-    def all_files(self, directory: Optional[StrPath] = None) -> Iterator[Path]:
+    def all_files(self, directory: StrPath | None = None) -> Iterator[Path]:
         """Yield all files in *directory* and its subdirectories.
 
         The files that are not yielded are those explicitly ignored by the REUSE
@@ -183,7 +184,7 @@ class Project:
         )
 
     def subset_files(
-        self, files: Collection[StrPath], directory: Optional[StrPath] = None
+        self, files: Collection[StrPath], directory: StrPath | None = None
     ) -> Iterator[Path]:
         """Like :meth:`all_files`, but all files that are not in *files* are
         filtered out.
@@ -284,10 +285,10 @@ class Project:
             if global_results[PrecedenceType.CLOSEST]:
                 # There should only by a single CLOSEST result in the list.
                 closest = global_results[PrecedenceType.CLOSEST][0]
-                if file_result.copyright_lines:
+                if file_result.copyright_notices:
                     result.append(
                         closest.copy(
-                            copyright_lines=set(),
+                            copyright_notices=set(),
                         )
                     )
                 elif file_result.spdx_expressions:
@@ -310,7 +311,7 @@ class Project:
         root: Path,
         include_submodules: bool = False,
         include_meson_subprojects: bool = False,
-        vcs_strategy: Optional[VCSStrategy] = None,
+        vcs_strategy: VCSStrategy | None = None,
     ) -> list[GlobalLicensingFound]:
         """Find the path and corresponding class of a project directory's
         :class:`GlobalLicensing`.

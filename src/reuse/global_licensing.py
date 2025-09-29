@@ -6,24 +6,15 @@
 
 # mypy: disable-error-code=attr-defined
 
+import functools
 import logging
 import re
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import Callable, Collection, Generator, Iterable
 from enum import Enum
 from pathlib import Path, PurePath
-from typing import (
-    Any,
-    Callable,
-    Collection,
-    Generator,
-    Optional,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, TypeVar, cast
 
 import attrs
 import tomlkit
@@ -33,9 +24,11 @@ from debian.copyright import Copyright
 from debian.copyright import Error as DebianError
 from license_expression import ExpressionError
 
-from . import _LICENSING, ReuseInfo, SourceType
-from .covered_files import iter_files
+from . import _LICENSING
+from .copyright import CopyrightNotice, ReuseInfo, SourceType
+from .covered_files import is_path_ignored
 from .exceptions import (
+    CopyrightNoticeParseError,
     GlobalLicensingParseError,
     GlobalLicensingParseTypeError,
     GlobalLicensingParseValueError,
@@ -55,8 +48,8 @@ REUSE_TOML_VERSION = 1
 _TOML_KEYS = {
     "paths": "path",
     "precedence": "precedence",
-    "copyright_lines": "SPDX-FileCopyrightText",
-    "spdx_expressions": "SPDX-License-Identifier",
+    "_copyright_notices": "SPDX-FileCopyrightText",
+    "_spdx_expressions": "SPDX-License-Identifier",
 }
 
 
@@ -78,8 +71,8 @@ class PrecedenceType(Enum):
 
 @attrs.define
 class _CollectionOfValidator:
-    collection_type: Type[Collection] = attrs.field()
-    value_type: Type = attrs.field()
+    collection_type: type[Collection] = attrs.field()
+    value_type: type = attrs.field()
     optional: bool = attrs.field(default=True)
 
     def __call__(
@@ -133,8 +126,8 @@ class _CollectionOfValidator:
 
 
 def _validate_collection_of(
-    collection_type: Type[Collection],
-    value_type: Type[_T],
+    collection_type: type[Collection],
+    value_type: type[_T],
     optional: bool = False,
 ) -> Callable[[Any, attrs.Attribute, Collection[_T]], Any]:
     return _CollectionOfValidator(
@@ -162,7 +155,7 @@ class _InstanceOfValidator(_AttrInstanceOfValidator):
 
 
 def _instance_of(
-    type_: Type[_T],
+    type_: type[_T],
 ) -> Callable[[Any, attrs.Attribute, _T], Any]:
     return _InstanceOfValidator(type_)
 
@@ -184,28 +177,28 @@ def _str_to_global_precedence(value: Any) -> PrecedenceType:
         ) from error
 
 
-@overload
-def _str_to_set(value: str) -> set[str]: ...
-
-
-@overload
-def _str_to_set(value: Union[None, _T, Collection[_T]]) -> set[_T]: ...
-
-
-def _str_to_set(
-    value: Union[str, None, _T, Collection[_T]],
-) -> Union[set[str], set[_T]]:
+def _to_set(value: _T | Iterable[_T] | None) -> set[_T]:
     if value is None:
-        return cast(set[str], set())
+        return set()
+    # Special case for strings.
     if isinstance(value, str):
-        return {value}
+        return {cast(_T, value)}
     if hasattr(value, "__iter__"):
         return set(value)
     return {value}
 
 
-def _str_to_set_of_expr(value: Any) -> set[Expression]:
-    value = _str_to_set(value)
+# The attrs library infers __init__ parameter types from the converter's
+# signature. The signature of _to_set confuses mypy, so this wrapper exposes a
+# simpler signature just for use with attrs.
+def _to_set_any(value: Any | None) -> set[Any]:
+    return cast(set[Any], _to_set(value))
+
+
+def _to_set_of_expr(
+    value: str | Iterable[str] | None,
+) -> set[Expression]:
+    value = _to_set(value)
     result = set()
     for expression in value:
         try:
@@ -219,7 +212,29 @@ def _str_to_set_of_expr(value: Any) -> set[Expression]:
     return result
 
 
-@attrs.define
+def _to_set_of_notice(
+    value: str | Iterable[str] | None,
+) -> set[CopyrightNotice]:
+    value = _to_set(value)
+    result = set()
+    for notice in value:
+        try:
+            result.add(CopyrightNotice.from_string(notice))
+        except CopyrightNoticeParseError as error:
+            try:
+                result.add(
+                    CopyrightNotice.from_string(
+                        f"SPDX-FileCopyrightText: {notice}"
+                    )
+                )
+            except CopyrightNoticeParseError:
+                raise GlobalLicensingParseValueError(
+                    _("Could not parse '{notice}'").format(notice=notice)
+                ) from error
+    return result
+
+
+@attrs.define(frozen=True)
 class GlobalLicensing(ABC):
     """An abstract class that represents a configuration file that contains
     licensing information that is pertinent to other files in the project.
@@ -251,7 +266,7 @@ class GlobalLicensing(ABC):
         """
 
 
-@attrs.define
+@attrs.define(frozen=True)
 class ReuseDep5(GlobalLicensing):
     """A soft wrapper around :class:`Copyright`."""
 
@@ -287,10 +302,8 @@ class ReuseDep5(GlobalLicensing):
         return {
             PrecedenceType.AGGREGATE: [
                 ReuseInfo(
-                    spdx_expressions=set(
-                        map(_LICENSING.parse, [result.license.synopsis])
-                    ),
-                    copyright_lines=set(
+                    spdx_expressions=_to_set_of_expr(result.license.synopsis),
+                    copyright_notices=_to_set_of_notice(
                         map(str.strip, result.copyright.splitlines())
                     ),
                     path=path,
@@ -304,33 +317,47 @@ class ReuseDep5(GlobalLicensing):
         }
 
 
-@attrs.define
+@attrs.define(frozen=True)
 class AnnotationsItem:
     """A class that maps to a single [[annotations]] table element in
     REUSE.toml.
     """
 
     paths: set[str] = attrs.field(
-        converter=_str_to_set,
+        converter=_to_set_any,
         validator=_validate_collection_of(set, str, optional=False),
     )
     precedence: PrecedenceType = attrs.field(
         converter=_str_to_global_precedence, default=PrecedenceType.CLOSEST
     )
-    copyright_lines: set[str] = attrs.field(
-        converter=_str_to_set,
+    _copyright_notices: set[str] = attrs.field(
+        alias="copyright_notices",
+        converter=_to_set_any,
         validator=_validate_collection_of(set, str, optional=True),
         default=None,
     )
-    spdx_expressions: set[Expression] = attrs.field(
-        converter=_str_to_set_of_expr,
-        validator=_validate_collection_of(set, Expression, optional=True),
+    _spdx_expressions: set[str] = attrs.field(
+        alias="spdx_expressions",
+        converter=_to_set_any,
+        validator=_validate_collection_of(set, str, optional=True),
         default=None,
     )
 
-    _paths_regex: re.Pattern = attrs.field(init=False)
-
     def __attrs_post_init__(self) -> None:
+        # Immediately trigger cached properties to get error as needed.
+        _ = self.copyright_notices
+        _ = self.spdx_expressions
+
+    @functools.cached_property
+    def copyright_notices(self) -> set[CopyrightNotice]:
+        return _to_set_of_notice(self._copyright_notices)
+
+    @functools.cached_property
+    def spdx_expressions(self) -> set[Expression]:
+        return _to_set_of_expr(self._spdx_expressions)
+
+    @functools.cached_property
+    def _paths_regex(self) -> re.Pattern:
         def translate(path: str) -> str:
             # pylint: disable=too-many-branches
             blocks = []
@@ -369,9 +396,7 @@ class AnnotationsItem:
             result = "".join(blocks)
             return f"^({result})$"
 
-        self._paths_regex = re.compile(
-            "|".join(translate(path) for path in self.paths)
-        )
+        return re.compile("|".join(translate(path) for path in self.paths))
 
     @classmethod
     def from_dict(cls, values: dict[str, Any]) -> "AnnotationsItem":
@@ -383,9 +408,11 @@ class AnnotationsItem:
         precedence = values.get(_TOML_KEYS["precedence"])
         if precedence is not None:
             new_dict["precedence"] = precedence
-        new_dict["copyright_lines"] = values.get(_TOML_KEYS["copyright_lines"])
+        new_dict["copyright_notices"] = values.get(
+            _TOML_KEYS["_copyright_notices"]
+        )
         new_dict["spdx_expressions"] = values.get(
-            _TOML_KEYS["spdx_expressions"]
+            _TOML_KEYS["_spdx_expressions"]
         )
         return cls(**new_dict)  # type: ignore
 
@@ -396,7 +423,7 @@ class AnnotationsItem:
         return bool(self._paths_regex.match(path))
 
 
-@attrs.define
+@attrs.define(frozen=True)
 class ReuseTOML(GlobalLicensing):
     """A class that contains the data parsed from a REUSE.toml file."""
 
@@ -447,7 +474,7 @@ class ReuseTOML(GlobalLicensing):
                 str(error), source=str(path)
             ) from error
 
-    def find_annotations_item(self, path: StrPath) -> Optional[AnnotationsItem]:
+    def find_annotations_item(self, path: StrPath) -> AnnotationsItem | None:
         """Find a :class:`AnnotationsItem` that matches *path*. The latest match
         in :attr:`annotations` is returned.
         """
@@ -467,7 +494,7 @@ class ReuseTOML(GlobalLicensing):
                 item.precedence: [
                     ReuseInfo(
                         spdx_expressions=item.spdx_expressions,
-                        copyright_lines=item.copyright_lines,
+                        copyright_notices=item.copyright_notices,
                         path=path,
                         source_path="REUSE.toml",
                         source_type=SourceType.REUSE_TOML,
@@ -482,20 +509,20 @@ class ReuseTOML(GlobalLicensing):
         return PurePath(self.source).parent
 
 
-@attrs.define
+@attrs.define(frozen=True)
 class NestedReuseTOML(GlobalLicensing):
     """A class that represents a hierarchy of :class:`ReuseTOML` objects."""
 
     reuse_tomls: list[ReuseTOML] = attrs.field()
 
     @classmethod
-    def from_file(cls, path: StrPath, **kwargs: Any) -> "GlobalLicensing":
+    def from_file(cls, path: StrPath, **kwargs: Any) -> "NestedReuseTOML":
         """TODO: *path* is a directory instead of a file."""
         include_submodules: bool = kwargs.get("include_submodules", False)
         include_meson_subprojects: bool = kwargs.get(
             "include_meson_subprojects", False
         )
-        vcs_strategy: Optional[VCSStrategy] = kwargs.get("vcs_strategy")
+        vcs_strategy: VCSStrategy | None = kwargs.get("vcs_strategy")
         tomls = [
             ReuseTOML.from_file(toml_path)
             for toml_path in cls.find_reuse_tomls(
@@ -544,9 +571,13 @@ class NestedReuseTOML(GlobalLicensing):
         licence_found = False
         to_keep: list[ReuseInfo] = []
         for info in reversed(result[PrecedenceType.CLOSEST]):
-            new_info = info.copy(copyright_lines=set(), spdx_expressions=set())
-            if not copyright_found and info.copyright_lines:
-                new_info = new_info.copy(copyright_lines=info.copyright_lines)
+            new_info = info.copy(
+                copyright_notices=set(), spdx_expressions=set()
+            )
+            if not copyright_found and info.copyright_notices:
+                new_info = new_info.copy(
+                    copyright_notices=info.copyright_notices
+                )
                 copyright_found = True
             if not licence_found and info.spdx_expressions:
                 new_info = new_info.copy(spdx_expressions=info.spdx_expressions)
@@ -567,20 +598,37 @@ class NestedReuseTOML(GlobalLicensing):
         path: StrPath,
         include_submodules: bool = False,
         include_meson_subprojects: bool = False,
-        vcs_strategy: Optional[VCSStrategy] = None,
+        vcs_strategy: VCSStrategy | None = None,
     ) -> Generator[Path, None, None]:
-        """Find all REUSE.toml files in *path*."""
-        return (
-            item
-            for item in iter_files(
-                path,
+        """Find all REUSE.toml files in *path*. *path* should be the root of the
+        directory. If it is not, REUSE.toml files which are in ignored
+        directories may not be correctly ignored.
+        """
+        path = Path(path)
+        reuse_tomls = path.rglob("REUSE.toml")
+        for item in reuse_tomls:
+            if is_path_ignored(
+                item,
                 include_submodules=include_submodules,
                 include_meson_subprojects=include_meson_subprojects,
                 include_reuse_tomls=True,
                 vcs_strategy=vcs_strategy,
-            )
-            if item.name == "REUSE.toml"
-        )
+            ):
+                continue
+            rel = item.relative_to(path)
+            parts = rel.parts
+            for directory in (
+                path.joinpath(*parts[:i]) for i in range(1, len(parts))
+            ):
+                if is_path_ignored(
+                    directory,
+                    include_submodules=include_submodules,
+                    include_meson_subprojects=include_meson_subprojects,
+                    vcs_strategy=vcs_strategy,
+                ):
+                    break
+            else:
+                yield item
 
     def _find_relevant_tomls(self, path: StrPath) -> list[ReuseTOML]:
         found = []

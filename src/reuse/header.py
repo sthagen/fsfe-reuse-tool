@@ -17,15 +17,15 @@
 
 import logging
 import re
-from typing import NamedTuple, Optional, Sequence, Type, cast
+from collections.abc import Sequence
+from typing import NamedTuple, cast
 
 from boolean.boolean import ParseError
 from jinja2 import Environment, PackageLoader, Template
 from license_expression import ExpressionError
 
-from . import ReuseInfo
 from .comment import CommentStyle, EmptyCommentStyle, PythonCommentStyle
-from .copyright import merge_copyright_lines
+from .copyright import CopyrightNotice, ReuseInfo
 from .exceptions import (
     CommentCreateError,
     CommentParseError,
@@ -52,9 +52,9 @@ class _TextSections(NamedTuple):
 
 def _create_new_header(
     reuse_info: ReuseInfo,
-    template: Optional[Template] = None,
+    template: Template | None = None,
     template_is_commented: bool = False,
-    style: Optional[Type[CommentStyle]] = None,
+    style: type[CommentStyle] | None = None,
     force_multi: bool = False,
 ) -> str:
     """Format a new header from scratch.
@@ -67,10 +67,10 @@ def _create_new_header(
     if template is None:
         template = DEFAULT_TEMPLATE
     if style is None:
-        style = cast(Type[CommentStyle], PythonCommentStyle)
+        style = cast(type[CommentStyle], PythonCommentStyle)
 
     rendered = template.render(
-        copyright_lines=sorted(reuse_info.copyright_lines),
+        copyright_lines=map(str, sorted(reuse_info.copyright_notices)),
         contributor_lines=sorted(reuse_info.contributor_lines),
         spdx_expressions=sorted(map(str, reuse_info.spdx_expressions)),
     ).strip("\n")
@@ -85,7 +85,7 @@ def _create_new_header(
     # Verify that the result contains all ReuseInfo.
     new_reuse_info = extract_reuse_info(result)
     if (
-        reuse_info.copyright_lines != new_reuse_info.copyright_lines
+        reuse_info.copyright_notices != new_reuse_info.copyright_notices
         and reuse_info.spdx_expressions != new_reuse_info.spdx_expressions
     ):
         _LOGGER.debug(
@@ -103,10 +103,10 @@ def _create_new_header(
 # pylint: disable=too-many-arguments
 def create_header(
     reuse_info: ReuseInfo,
-    header: Optional[str] = None,
-    template: Optional[Template] = None,
+    header: str | None = None,
+    template: Template | None = None,
     template_is_commented: bool = False,
-    style: Optional[Type[CommentStyle]] = None,
+    style: type[CommentStyle] | None = None,
     force_multi: bool = False,
     merge_copyrights: bool = False,
 ) -> str:
@@ -137,17 +137,19 @@ def create_header(
             ) from err
 
         if merge_copyrights:
-            spdx_copyrights = merge_copyright_lines(
-                reuse_info.copyright_lines.union(existing_spdx.copyright_lines),
+            spdx_copyrights = CopyrightNotice.merge(
+                reuse_info.copyright_notices.union(
+                    existing_spdx.copyright_notices
+                )
             )
         else:
-            spdx_copyrights = reuse_info.copyright_lines.union(
-                existing_spdx.copyright_lines
+            spdx_copyrights = reuse_info.copyright_notices.union(
+                existing_spdx.copyright_notices
             )
 
         # TODO: This behaviour does not match the docstring.
         reuse_info = existing_spdx | reuse_info
-        reuse_info = reuse_info.copy(copyright_lines=spdx_copyrights)
+        reuse_info = reuse_info.copy(copyright_notices=spdx_copyrights)
 
     new_header += _create_new_header(
         reuse_info,
@@ -175,7 +177,7 @@ def _indices_of_newlines(text: str) -> Sequence[int]:
 
 
 def _find_first_spdx_comment(
-    text: str, style: Optional[Type[CommentStyle]] = None
+    text: str, style: type[CommentStyle] | None = None
 ) -> _TextSections:
     """Find the first SPDX comment in the file. Return a tuple with everything
     preceding the comment, the comment itself, and everything following it.
@@ -241,9 +243,9 @@ def place_header(
 def find_and_replace_header(
     text: str,
     reuse_info: ReuseInfo,
-    template: Optional[Template] = None,
+    template: Template | None = None,
     template_is_commented: bool = False,
-    style: Optional[Type[CommentStyle]] = None,
+    style: type[CommentStyle] | None = None,
     force_multi: bool = False,
     merge_copyrights: bool = False,
 ) -> str:
@@ -314,9 +316,9 @@ def find_and_replace_header(
 def add_new_header(
     text: str,
     reuse_info: ReuseInfo,
-    template: Optional[Template] = None,
+    template: Template | None = None,
     template_is_commented: bool = False,
-    style: Optional[Type[CommentStyle]] = None,
+    style: type[CommentStyle] | None = None,
     force_multi: bool = False,
     merge_copyrights: bool = False,
 ) -> str:
