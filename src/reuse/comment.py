@@ -10,6 +10,7 @@
 # SPDX-FileCopyrightText: 2022 Nico Rikken <nico.rikken@fsfe.org>
 # SPDX-FileCopyrightText: 2022 Sebastian Crane <seabass@fsfe.org>
 # SPDX-FileCopyrightText: 2022 Stefan Hynek <stefan.hynek@uni-goettingen.de>
+# SPDX-FileCopyrightText: 2022 Arnouet Engelen
 # SPDX-FileCopyrightText: 2023 Juelich Supercomputing Centre, Forschungszentrum Juelich GmbH
 # SPDX-FileCopyrightText: 2023 Kevin Meagher
 # SPDX-FileCopyrightText: 2023 Mathias Dannesbo <md@magenta.dk>
@@ -22,6 +23,7 @@
 # SPDX-FileCopyrightText: 2025 András Nagy <nagyandris0718@gmail.com>
 # SPDX-FileCopyrightText: 2025 Kiko Fernandez-Reyes <kiko@erlang.org>
 # SPDX-FileCopyrightText: 2025 Hatzka <hatzka@nezumi.studio>
+# SPDX-FileCopyrightText: 2025 Johannes HAMPP <johannes.hampp@openenergytransition.org>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -34,7 +36,7 @@ import operator
 import re
 from pathlib import Path
 from textwrap import dedent
-from typing import NamedTuple, Optional, cast
+from typing import NamedTuple
 
 from .exceptions import CommentCreateError, CommentParseError
 from .types import StrPath
@@ -323,6 +325,14 @@ class BibTexCommentStyle(CommentStyle):
 
     MULTI_LINE = MultiLineSegments("@Comment{", "", "}")
     SHEBANGS = ["% !BIB", "%!BIB"]
+
+
+class BladeCommentStyle(CommentStyle):
+    """Laravel Blade Template comment style."""
+
+    _shorthand = "blade"
+
+    MULTI_LINE = MultiLineSegments("{{--", "", "--}}")
 
 
 class CCommentStyle(CommentStyle):
@@ -618,6 +628,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".bbappend": PythonCommentStyle,
     ".bbclass": PythonCommentStyle,
     ".bib": BibTexCommentStyle,
+    ".blade.php": BladeCommentStyle,
     ".bzl": PythonCommentStyle,
     ".c": CCommentStyle,
     ".cabal": HaskellCommentStyle,
@@ -734,8 +745,8 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".mk": PythonCommentStyle,
     ".ml": MlCommentStyle,
     ".mli": MlCommentStyle,
-    ".nim.cfg": PythonCommentStyle,  # Nim-lang build config parameters/settings
     ".nim": PythonCommentStyle,
+    ".nim.cfg": PythonCommentStyle,  # Nim-lang build config parameters/settings
     ".nimble": PythonCommentStyle,  # Nim-lang build config
     ".nimrod": PythonCommentStyle,
     ".nix": PythonCommentStyle,
@@ -925,6 +936,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     "poetry.lock": UncommentableCommentStyle,
     "pubspec.lock": UncommentableCommentStyle,
     "pylintrc": PythonCommentStyle,
+    "py.typed": PythonCommentStyle,
     "Rakefile": PythonCommentStyle,
     "requirements.txt": PythonCommentStyle,
     "ROOT": MlCommentStyle,
@@ -959,10 +971,13 @@ def get_comment_style(path: StrPath) -> type[CommentStyle] | None:
     path = Path(path)
     style = FILENAME_COMMENT_STYLE_MAP_LOWERCASE.get(path.name.lower())
     if style is None:
-        style = cast(
-            Optional[type[CommentStyle]],
-            EXTENSION_COMMENT_STYLE_MAP_LOWERCASE.get(path.suffix.lower()),
+        style = EXTENSION_COMMENT_STYLE_MAP_LOWERCASE.get(
+            "".join(path.suffixes).lower()
         )
+        if style is None:
+            style = EXTENSION_COMMENT_STYLE_MAP_LOWERCASE.get(
+                path.suffix.lower()
+            )
     return style
 
 

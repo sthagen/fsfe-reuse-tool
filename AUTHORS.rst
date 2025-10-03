@@ -144,6 +144,7 @@ Contributors
 - Skyler Grey <sky@a.starrysky.fyi>
 - Emil Velikov <emil.l.velikov@gmail.com>
 - Linnea Gräf <nea@nea.moe>
+- Arnout Engelen
 - Raphael Schlarb <info@raphael.schlarb.one>
 - Matthias Schoettle <opensource@mattsch.com>
 - András Nagy <nagyandris0718@gmail.com>
@@ -152,3 +153,4 @@ Contributors
 - Hatzka <hatzka@nezumi.studio>
 - Jonas Fierlings <fnoegip@gmail.com>
 - ASCIIMoth <ascii@moth.contact>
+- Johannes HAMPP <johannes.hampp@openenergytransition.org>
