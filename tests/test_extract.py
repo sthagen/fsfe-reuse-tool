@@ -12,11 +12,13 @@
 
 import logging
 import os
+import subprocess
+import sys
 from inspect import cleandoc
 from io import BytesIO
 
 import pytest
-from conftest import RESOURCES_DIRECTORY
+from conftest import RESOURCES_DIRECTORY, chardet
 
 from reuse.copyright import (
     CopyrightNotice,
@@ -31,7 +33,9 @@ from reuse.extract import (
     detect_newline,
     extract_reuse_info,
     filter_ignore_block,
+    get_encoding_module,
     reuse_info_of_file,
+    set_encoding_module,
 )
 
 _IGNORE_END = "REUSE-IgnoreEnd"
@@ -357,6 +361,20 @@ class TestReuseInfoOfFile:
             assert result == ReuseInfo()
         assert f"'{path}' was detected as a binary file" in caplog.text
 
+    def test_log(self, caplog, encoding_module):
+        """Log the extraction to with level logging.DEBUG"""
+        caplog.set_level(logging.DEBUG, logger="reuse.extract")
+        buffer = BytesIO(b"# Copyright Jane Doe")
+        buffer.name = "foo.py"
+        reuse_info_of_file(buffer)
+        assert len(caplog.records) == 1
+        assert caplog.records[0].levelname == "DEBUG"
+        assert caplog.records[0].msg == (
+            f"extracting REUSE information from 'foo.py'"
+            f" (encoding 'utf_8', encoding module '{encoding_module}',"
+            f" newline {repr(os.linesep)})"
+        )
+
     @pytest.mark.parametrize("newline", ["\r\n", "\r", "\n"])
     def test_all_newlines(self, newline):
         """Can lint files with any newline."""
@@ -669,6 +687,58 @@ class TestContainsReuseInfo:
                 """
             )
         )
+
+
+class TestEncodingModule:
+    """Tests for picking the correct encoding module."""
+
+    def test_wrong_env(self):
+        """If REUSE_ENCODING_MODULE is set to an unsupported value, exit."""
+        env = os.environ.copy()
+        env["REUSE_ENCODING_MODULE"] = "foo"
+        result = subprocess.run(
+            [sys.executable, "-c", "import reuse.extract"],
+            env=env,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            check=False,
+        )
+        assert result.returncode != 0
+        assert result.stdout.decode("utf-8").strip() == (
+            "REUSE_ENCODING_MODULE must have a value in ['magic',"
+            " 'charset_normalizer', 'chardet']; it has 'foo'. Aborting."
+        )
+
+    @chardet
+    def test_pick_module(self):
+        """If REUSE_ENCODING_MODULE is set to a correct value, correctly select
+        that encoding module.
+        """
+        env = os.environ.copy()
+        env["REUSE_ENCODING_MODULE"] = "chardet"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import reuse.extract;"
+                "print(reuse.extract._ENCODING_MODULE.__name__, end='')",
+            ],
+            env=env,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            check=False,
+        )
+        assert result.returncode == 0
+        assert result.stdout == b"chardet"
+
+    def test_get_encoding_module(self, encoding_module):
+        """Test whether get_encoding_module returns the correct module."""
+        assert get_encoding_module().__name__ == encoding_module
+
+    def test_set_wrong_encoding_module_(self):
+        """If setting to an unsupported module, expect an error."""
+        with pytest.raises(NoEncodingModuleError):
+            set_encoding_module("foo")  # type: ignore[arg-type]
 
 
 # Reuse-IgnoreEnd

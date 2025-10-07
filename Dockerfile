@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Create a base image that has dependencies installed.
-FROM alpine:3.18 AS base
+FROM alpine:3.22 AS base
 
 RUN apk --no-cache add git mercurial python3 openssh-client libmagic
 
@@ -20,7 +20,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN poetry install --no-interaction --no-root --only main
+RUN poetry install --no-interaction --no-root --only main --all-extras
 RUN poetry build --no-interaction
 RUN pip install dist/*.whl
 
