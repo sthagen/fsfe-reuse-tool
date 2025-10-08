@@ -25,6 +25,37 @@ CLI command and its behaviour. There are no guarantees of stability for the
 
 <!-- protokolo-section-tag -->
 
+## v6.1.2 - 2025-10-08
+
+### Fixed
+
+- Fixed a bug where a newline would sometimes be missing from
+  `reuse lint --lines`. (#1251)
+- The output of `reuse lint --lines` is now sorted by path name. (#1251)
+- Fixed a performance regression introduced in v6.1.1 that would cause some
+  copyright notices to take incredibly long to parse. (#1252)
+
+## v6.1.1 - 2025-10-07
+
+### Changed
+
+- In the Docker images, Alpine is bumped to `alpine:3.22` and Debian to
+  `debian:13-slim`. (#1247)
+
+### Fixed
+
+- ASCII frames around comments were broken in v6.0.0. They now work again. The
+  sole condition is that the 'suffix' of a comment is identical to its 'prefix'.
+  For example:
+
+  ```
+  /*******************************************\
+  |*  SPDX-License-Identifier: CC-BY-SA-4.0  *|
+  \*******************************************/
+  ```
+
+  (#1249)
+
 ## v6.1.0 - 2025-10-07
 
 This release adds a simple feature as a workaround for a bug that will be
