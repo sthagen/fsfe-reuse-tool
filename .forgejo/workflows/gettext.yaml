@@ -11,20 +11,17 @@ on:
       - main
     paths:
       - "src/reuse/**.py"
+      - ".forgejo/workflows/gettext.yaml"
 
 jobs:
   create-pot:
-    runs-on: ubuntu-24.04
+    runs-on: debian-trixie
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-          # The main branch is protected. fsfe-system has been granted an
-          # exception to the branch protection, so we'll use that account's
-          # token to push to the main branch.
-          token: ${{ secrets.FSFE_SYSTEM_TOKEN }}
+      - uses: actions/checkout@v5
       - name: Install poetry, gettext, and wlc
-        run: sudo apt-get install -y python3-poetry gettext wlc
+        run: |
+          apt-get update
+          apt-get install -y python3-poetry gettext wlc
       # We mostly install reuse to install the click dependency.
       - name: Install reuse
         run: poetry install --no-interaction --only main
@@ -52,6 +49,7 @@ jobs:
           git config --global user.email "<>"
           git add po/reuse.pot po/*.po
           git commit -m "Update reuse.pot"
+          git remote set-url origin https://fsfe-system:${{ secrets.FSFE_SYSTEM_TOKEN }}@codeberg.org/fsfe/reuse-tool
           git push origin main
       - name: Unlock Weblate
         run: |
