@@ -70,6 +70,7 @@ Next, you'll find the following commands handy:
 - `poetry run pylint src`
 - `poetry run mypy`
 - `make docs`
+- `pre-commit run --all` (runs all linters, including `prettier`)
 
 ### Make changes
 
@@ -156,6 +157,7 @@ possible, run `poetry lock --no-update`.
 
 ### After release
 
+- Make a release at <https://codeberg.org/fsfe/reuse-tool/releases>.
 - Update readthedocs (if not happened automatically)
 - Update API worker: https://git.fsfe.org/reuse/api-worker#user-content-server
 - Make sure package is updated in distros (contact maintainers)
