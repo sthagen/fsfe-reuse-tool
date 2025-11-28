@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 
 [![The latest version of reuse can be found on PyPI.](https://img.shields.io/pypi/v/reuse.svg)](https://pypi.python.org/pypi/reuse)
 [![Information on what versions of Python reuse supports can be found on PyPI.](https://img.shields.io/pypi/pyversions/reuse.svg)](https://pypi.python.org/pypi/reuse)
-[![REUSE status](https://api.reuse.software/badge/github.com/fsfe/reuse-tool)](https://api.reuse.software/info/github.com/fsfe/reuse-tool)
+[![REUSE status](https://api.reuse.software/badge/codeberg.org/fsfe/reuse-tool)](https://api.reuse.software/info/codeberg.org/fsfe/reuse-tool)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 [![Packaging status](https://repology.org/badge/tiny-repos/reuse.svg?header=in%20distro%20repos)](https://repology.org/project/reuse/versions)
 [![Translation status](https://hosted.weblate.org/widgets/fsfe/-/reuse-tool/svg-badge.svg)](https://hosted.weblate.org/projects/fsfe/reuse-tool/)
@@ -347,8 +347,9 @@ You can find the full contribution guidelines at
 
 ## Licensing
 
-This work is licensed under multiple licences. Because keeping this section
-up-to-date is challenging, here is a brief summary as of April 2024:
+This repository is itself REUSE-compliant. The licensing of each file can be
+divined with `reuse spdx` or `reuse lint --json`, but here is a best-effort
+summary:
 
 - All original source code is licensed under GPL-3.0-or-later.
 - All documentation is licensed under CC-BY-SA-4.0.
@@ -356,5 +357,3 @@ up-to-date is challenging, here is a brief summary as of April 2024:
 - Some code borrowed from
   [spdx/tools-python](https://github.com/spdx/tools-python) is licensed under
   Apache-2.0.
-
-For more accurate information, check the individual files.
