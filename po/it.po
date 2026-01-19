@@ -6,8 +6,8 @@ msgstr ""
 "Project-Id-Version: FSFE reuse\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-11-26 02:18+0000\n"
-"PO-Revision-Date: 2025-12-10 20:00+0000\n"
-"Last-Translator: Marco Ciampa <ciampix@posteo.net>\n"
+"PO-Revision-Date: 2026-01-20 09:01+0000\n"
+"Last-Translator: scollovati <20740642+scollovati@users.noreply.github.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/fsfe/reuse-tool/"
 "it/>\n"
 "Language: it\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 5.16-dev\n"
 
 #: src/reuse/_annotate.py:94
 #, python-brace-format
@@ -73,7 +73,7 @@ msgid ""
 "'{path}' does not support single-line comments, please do not use '--single-"
 "line'."
 msgstr ""
-"'{path}' non supporta i commenti su singola riga, non usare '--single-line'."
+"'{path}' non supporta i commenti su una sola riga, non usare '--single-line'."
 
 #: src/reuse/cli/annotate.py:167
 #, python-brace-format
@@ -111,7 +111,7 @@ msgid ""
 "By using --copyright and --license, you can specify which copyright holders "
 "and licenses to add to the headers of the given files."
 msgstr ""
-"Usando --copyright e --license, si può specificare quali detentori di "
+"Usando --copyright e --license, puoi specificare quali detentori di "
 "copyright e licenze aggiungere alle intestazioni dei file indicati."
 
 #: src/reuse/cli/annotate.py:296
