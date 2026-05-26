@@ -16,7 +16,7 @@
 # SPDX-FileCopyrightText: 2023 Mathias Dannesbo <md@magenta.dk>
 # SPDX-FileCopyrightText: 2023 Maxim Cournoyer <maxim.cournoyer@gmail.com>
 # SPDX-FileCopyrightText: 2023 Redradix S.L. <info@redradix.com>
-# SPDX-FileCopyrightText: 2023 Shun Sakai <sorairolake@protonmail.ch>
+# SPDX-FileCopyrightText: 2023-2026 Shun Sakai <sorairolake@protonmail.ch>
 # SPDX-FileCopyrightText: 2024 Rivos Inc.
 # SPDX-FileCopyrightText: 2024 Anthony Loiseau <anthony.loiseau@allcircuits.com>
 # SPDX-FileCopyrightText: 2024 Yongmin Hong <yewon@revi.email>
@@ -32,6 +32,9 @@
 # SPDX-FileCopyrightText: 2025 Manlio Perillo <manlio.perillo@gmail.com>
 # SPDX-FileCopyrightText: 2025 Matthias Schoettle <opensource@mattsch.com>
 # SPDX-FileCopyrightText: 2026 Quentin BETTOUM <quentin@bettoum.fr>
+# SPDX-FileCopyrightText: 2026 Jack Davies <https://github.com/jgsdavies>
+# SPDX-FileCopyrightText: 2026 Martin Sladecek <martin.sladecek@gmail.com>
+# SPDX-FileCopyrightText: 2026 Mercury Technologies, Inc
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -514,6 +517,17 @@ class MlCommentStyle(CommentStyle):
     INDENT_BEFORE_END = " "
 
 
+class PascalCommentStyle(CommentStyle):
+    """Pascal comment style."""
+
+    SHORTHAND = "pascal"
+
+    SINGLE_LINE = "//"
+    INDENT_AFTER_SINGLE = " "
+    MULTI_LINE = MultiLineSegments("{", "", "}")
+    INDENT_AFTER_MIDDLE = " "
+
+
 class PlantUmlCommentStyle(CommentStyle):
     """PlantUML comment style."""
 
@@ -639,6 +653,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".bbclass": PythonCommentStyle,
     ".bib": BibTexCommentStyle,
     ".blade.php": BladeCommentStyle,
+    ".bxl": PythonCommentStyle,  # Buck2 eXtension Language
     ".bzl": PythonCommentStyle,
     ".c": CCommentStyle,
     ".cabal": HaskellCommentStyle,
@@ -669,6 +684,8 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".doc": UncommentableCommentStyle,
     ".docx": UncommentableCommentStyle,
     ".dotx": UncommentableCommentStyle,
+    ".dpr": PascalCommentStyle,
+    ".dpk": PascalCommentStyle,
     ".dtd": HtmlCommentStyle,
     ".dts": CppCommentStyle,
     ".dtsi": CppCommentStyle,
@@ -764,6 +781,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".odb": UncommentableCommentStyle,
     ".odf": UncommentableCommentStyle,
     ".odg": UncommentableCommentStyle,
+    ".odin": CCommentStyle,
     ".odm": UncommentableCommentStyle,
     ".odp": UncommentableCommentStyle,
     ".ods": UncommentableCommentStyle,
@@ -773,6 +791,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".otp": UncommentableCommentStyle,
     ".ots": UncommentableCommentStyle,
     ".ott": UncommentableCommentStyle,
+    ".pas": PascalCommentStyle,
     ".pdf": UncommentableCommentStyle,
     ".pem": UncommentableCommentStyle,
     ".php": CppCommentStyle,
@@ -828,6 +847,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     # SuperCollider synth definition (binary)
     ".scsyndef": UncommentableCommentStyle,
     ".sh": PythonCommentStyle,
+    ".sky": PythonCommentStyle,  # Starlark (legacy Skylark extension)
     ".sld": LispCommentStyle,  # Scheme Library Definition (R7RS)
     # Visual Studio solution file, officially uncommentable:
     ".sln": UncommentableCommentStyle,
@@ -838,6 +858,7 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".soy": CppCommentStyle,
     ".sps": LispCommentStyle,  # Scheme Program Source (R6RS)
     ".sql": HaskellCommentStyle,
+    ".star": PythonCommentStyle,  # Starlark
     ".sty": TexCommentStyle,
     ".svg": UncommentableCommentStyle,
     ".svelte": HtmlCommentStyle,
@@ -921,6 +942,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     ".prettierrc": UncommentableCommentStyle,  # could either be JSON or YAML
     ".prettierignore": PythonCommentStyle,
     ".pylintrc": PythonCommentStyle,
+    ".python-version": UncommentableCommentStyle,
     ".Renviron": PythonCommentStyle,
     ".Rprofile": PythonCommentStyle,
     ".shellcheckrc": PythonCommentStyle,
@@ -931,6 +953,8 @@ FILENAME_COMMENT_STYLE_MAP = {
     ".yarnrc": PythonCommentStyle,
     "ansible.cfg": PythonCommentStyle,
     "archive.sctxar": UncommentableCommentStyle,  # SuperCollider global archive
+    "BUCK": PythonCommentStyle,  # Buck2 build file
+    "BUILD": PythonCommentStyle,  # Bazel build file
     "cabal.project": HaskellCommentStyle,
     "Cargo.lock": UncommentableCommentStyle,
     "CMakeLists.txt": PythonCommentStyle,
@@ -956,6 +980,7 @@ FILENAME_COMMENT_STYLE_MAP = {
     "matplotlibrc": PythonCommentStyle,
     "meson.build": PythonCommentStyle,
     "meson_options.txt": PythonCommentStyle,
+    "PACKAGE": PythonCommentStyle,  # Buck2 package configuration file
     "poetry.lock": UncommentableCommentStyle,
     "pubspec.lock": UncommentableCommentStyle,
     "pylintrc": PythonCommentStyle,
