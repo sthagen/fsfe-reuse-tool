@@ -229,10 +229,13 @@ class GlobalLicensing(ABC):
     """
 
     source: str = attrs.field(validator=_instance_of(str))
+    root: Path = attrs.field(validator=_instance_of(Path))
 
     @classmethod
     @abstractmethod
-    def from_file(cls, path: StrPath, **kwargs: Any) -> "GlobalLicensing":
+    def from_file(
+        cls, path: Path, root: Path, **kwargs: Any
+    ) -> "GlobalLicensing":
         """Parse the file and create a :class:`GlobalLicensing` object from its
         contents.
 
@@ -261,11 +264,10 @@ class ReuseDep5(GlobalLicensing):
     dep5_copyright: Copyright
 
     @classmethod
-    def from_file(cls, path: StrPath, **kwargs: Any) -> "ReuseDep5":
-        path = Path(path)
+    def from_file(cls, path: Path, root: Path, **kwargs: Any) -> "ReuseDep5":
         try:
             with path.open(encoding="utf-8") as fp:
-                return cls(str(path), Copyright(fp))
+                return cls(str(path), root, Copyright(fp))
         except UnicodeDecodeError as error:
             raise GlobalLicensingParseError(
                 str(error), source=str(path)
@@ -281,8 +283,8 @@ class ReuseDep5(GlobalLicensing):
     def reuse_info_of(
         self, path: StrPath
     ) -> dict[PrecedenceType, list[ReuseInfo]]:
-        path = PurePath(path).as_posix()
-        result = self.dep5_copyright.find_files_paragraph(path)
+        posix_path = PurePath(path).as_posix()
+        result = self.dep5_copyright.find_files_paragraph(posix_path)
 
         if result is None:
             return {}
@@ -294,7 +296,7 @@ class ReuseDep5(GlobalLicensing):
                     copyright_notices=_to_set_of_notice(
                         map(str.strip, result.copyright.splitlines())
                     ),
-                    path=path,
+                    path=posix_path,
                     source_type=SourceType.DEP5,
                     # This is hardcoded. It must be a relative path from the
                     # project root. self.source is not (guaranteed) a relative
@@ -440,11 +442,14 @@ class ReuseTOML(GlobalLicensing):
     )
 
     @classmethod
-    def from_dict(cls, values: dict[str, Any], source: str) -> "ReuseTOML":
+    def from_dict(
+        cls, values: dict[str, Any], source: str, root: Path
+    ) -> "ReuseTOML":
         """Create a :class:`ReuseTOML` from the dict version of REUSE.toml."""
         new_dict = {}
         new_dict["version"] = values.get("version")
         new_dict["source"] = source
+        new_dict["root"] = root
 
         annotation_dicts = values.get("annotations", [])
         try:
@@ -461,7 +466,7 @@ class ReuseTOML(GlobalLicensing):
         return cls(**new_dict)  # type: ignore
 
     @classmethod
-    def from_toml(cls, toml: str, source: str) -> "ReuseTOML":
+    def from_toml(cls, toml: str, source: str, root: Path) -> "ReuseTOML":
         """Create a :class:`ReuseTOML` from TOML text.
 
         All values are unwrapped into plain Python objects. tomlkit's
@@ -473,13 +478,13 @@ class ReuseTOML(GlobalLicensing):
             raise GlobalLicensingParseError(
                 str(error), source=source
             ) from error
-        return cls.from_dict(document.unwrap(), source)
+        return cls.from_dict(document.unwrap(), source, root)
 
     @classmethod
-    def from_file(cls, path: StrPath, **kwargs: Any) -> "ReuseTOML":
+    def from_file(cls, path: Path, root: Path, **kwargs: Any) -> "ReuseTOML":
         try:
             with Path(path).open(encoding="utf-8") as fp:
-                return cls.from_toml(fp.read(), str(path))
+                return cls.from_toml(fp.read(), str(path), root)
         except UnicodeDecodeError as error:
             raise GlobalLicensingParseError(
                 str(error), source=str(path)
@@ -498,7 +503,7 @@ class ReuseTOML(GlobalLicensing):
     def reuse_info_of(
         self, path: StrPath
     ) -> dict[PrecedenceType, list[ReuseInfo]]:
-        path = PurePath(path).as_posix()
+        posix_path = PurePath(path).as_posix()
         item = self.find_annotations_item(path)
         if item:
             return {
@@ -506,8 +511,8 @@ class ReuseTOML(GlobalLicensing):
                     ReuseInfo(
                         spdx_expressions=item.spdx_expressions,
                         copyright_notices=item.copyright_notices,
-                        path=path,
-                        source_path="REUSE.toml",
+                        path=posix_path,
+                        source_path=self.source,
                         source_type=SourceType.REUSE_TOML,
                     )
                 ]
@@ -527,15 +532,29 @@ class NestedReuseTOML(GlobalLicensing):
     reuse_tomls: list[ReuseTOML] = attrs.field()
 
     @classmethod
-    def from_file(cls, path: StrPath, **kwargs: Any) -> "NestedReuseTOML":
-        """TODO: *path* is a directory instead of a file."""
+    def from_file(
+        cls, path: Path, root: Path, **kwargs: Any
+    ) -> "NestedReuseTOML":
+        """Create a :class:`NestedReuseTOML` from *path*, where *path* is a
+        directory instead of a file. It is typically identical to *root*.
+
+        In *kwargs*, some additional arguments should be provided.
+
+        Keyword Args:
+            include_submodules: Whether to look for REUSE.toml files in VCS
+                submodules.
+            include_meson_subprojects: Whether to look for REUSE.toml files in
+                Meson subprojects.
+            vcs_strategy: Which :class:`VCSStrategy` to use to detect ignored
+                REUSE.toml files.
+        """
         include_submodules: bool = kwargs.get("include_submodules", False)
         include_meson_subprojects: bool = kwargs.get(
             "include_meson_subprojects", False
         )
         vcs_strategy: VCSStrategy | None = kwargs.get("vcs_strategy")
         tomls = [
-            ReuseTOML.from_file(toml_path)
+            ReuseTOML.from_file(toml_path, root)
             for toml_path in cls.find_reuse_tomls(
                 path,
                 include_submodules=include_submodules,
@@ -543,15 +562,13 @@ class NestedReuseTOML(GlobalLicensing):
                 vcs_strategy=vcs_strategy,
             )
         ]
-        return cls(reuse_tomls=tomls, source=str(path))
+        return cls(reuse_tomls=tomls, source=str(path), root=root)
 
     def reuse_info_of(
         self, path: StrPath
     ) -> dict[PrecedenceType, list[ReuseInfo]]:
-        path = PurePath(path)
-
         toml_items: list[tuple[ReuseTOML, AnnotationsItem]] = (
-            self._find_relevant_tomls_and_items(path)
+            self._find_relevant_tomls_and_items(PurePath(path))
         )
 
         result = defaultdict(list)
@@ -566,7 +583,7 @@ class NestedReuseTOML(GlobalLicensing):
                 # were relative to the directory of the respective
                 # REUSE.toml.
                 info.copy(
-                    path=path.as_posix(),
+                    path=PurePath(path).as_posix(),
                     source_path=PurePath(toml.source)
                     .relative_to(self.source)
                     .as_posix(),
@@ -641,22 +658,21 @@ class NestedReuseTOML(GlobalLicensing):
             else:
                 yield item
 
-    def _find_relevant_tomls(self, path: StrPath) -> list[ReuseTOML]:
+    def _find_relevant_tomls(self, path: PurePath) -> list[ReuseTOML]:
         found = []
         for toml in self.reuse_tomls:
-            if PurePath(path).is_relative_to(toml.directory):
+            if path.is_relative_to(toml.directory):
                 found.append(toml)
         # Sort from topmost to deepest directory.
         found.sort(key=lambda toml: toml.directory.parts)
         return found
 
     def _find_relevant_tomls_and_items(
-        self, path: StrPath
+        self, path: PurePath
     ) -> list[tuple[ReuseTOML, AnnotationsItem]]:
         # *path* is relative to the Project root, which is the *source* of
         # NestedReuseTOML, which itself is a relative (to CWD) or absolute
         # path.
-        path = PurePath(path)
         adjusted_path = PurePath(self.source) / path
 
         tomls = self._find_relevant_tomls(adjusted_path)

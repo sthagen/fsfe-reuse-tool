@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2022 Florian Snow <florian@familysnow.net>
 # SPDX-FileCopyrightText: 2023 Maxim Cournoyer <maxim.cournoyer@gmail.com>
 # SPDX-FileCopyrightText: 2024 Rivos Inc.
+# SPDX-FileCopyrightText: 2025 Jan Gietzel <jan.gietzel@gmail.com>
 # SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -11,6 +12,7 @@
 """Tests for annotate."""
 
 import datetime
+import itertools
 import os
 import stat
 from inspect import cleandoc
@@ -774,6 +776,161 @@ class TestAnnotate:
             "Option '--copyright', '--license', or '--contributor' is required"
             in result.output
         )
+
+    def test_skip_global_reuse_toml(
+        self, fake_repository_reuse_toml, mock_date_today
+    ):
+        """Skip files which are covered by REUSE.toml."""
+        skip_file = fake_repository_reuse_toml / "doc/index.py"
+        skip_file.write_text("pass")
+
+        other_file = fake_repository_reuse_toml / "foo.py"
+        other_file.write_text("pass")
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "annotate",
+                "--copyright",
+                "Jane Doe",
+                "--skip-global",
+                "foo.py",
+                "doc/index.py",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert (
+            "Skipped file 'doc/index.py' which is already covered by"
+            " 'REUSE.toml'"
+        ) in result.stdout
+        assert skip_file.read_text() == "pass"
+        assert other_file.read_text() == cleandoc(
+            """
+            # SPDX-FileCopyrightText: 2018 Jane Doe
+
+            pass
+            """
+        )
+
+    def test_skip_global_reuse_dep5(self, fake_repository_dep5):
+        """Skip files which are covered by .reuse/dep5."""
+        skip_file = fake_repository_dep5 / "doc/index.py"
+        skip_file.write_text("pass")
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "annotate",
+                "--copyright",
+                "Jane Doe",
+                "--skip-global",
+                "doc/index.py",
+            ],
+        )
+
+        assert result.exit_code == 0
+        assert result.stdout == (
+            "Skipped file 'doc/index.py' which is already covered by"
+            " '.reuse/dep5'\n"
+        )
+        assert skip_file.read_text() == "pass"
+
+    @pytest.mark.parametrize(
+        "precedences",
+        itertools.chain.from_iterable(
+            itertools.combinations(["aggregate", "closest", "override"], r)
+            for r in range(1, 4)
+        ),
+    )
+    def test_skip_precedence(
+        self, empty_directory, mock_date_today, precedences
+    ):
+        """Skip only the precedences which are declared on the CLI with
+        --skip-precedence.
+        """
+        all_precedences = ["aggregate", "closest", "override"]
+        (empty_directory / "REUSE.toml").write_text(
+            cleandoc(
+                """
+                version = 1
+
+                [[annotations]]
+                path = 'aggregate'
+                precedence = 'aggregate'
+                SPDX-FileCopyrightText = 'Jane Doe'
+                SPDX-License-Identifier = 'MIT'
+
+                [[annotations]]
+                path = 'closest'
+                precedence = 'closest'
+                SPDX-FileCopyrightText = 'Jane Doe'
+                SPDX-License-Identifier = 'MIT'
+
+                [[annotations]]
+                path = 'override'
+                precedence = 'override'
+                SPDX-FileCopyrightText = 'Jane Doe'
+                SPDX-License-Identifier = 'MIT'
+                """
+            )
+        )
+        for precedence in all_precedences:
+            (empty_directory / precedence).write_text("pass")
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "annotate",
+                "--copyright",
+                "Alice",
+                "--style",
+                "python",
+            ]
+            + list(
+                itertools.chain.from_iterable(
+                    [
+                        ["--skip-precedence", precedence]
+                        for precedence in precedences
+                    ]
+                )
+            )
+            + all_precedences,
+        )
+        assert result.exit_code == 0
+
+        for precedence in precedences:
+            assert (empty_directory / precedence).read_text() == "pass"
+
+        for precedence in set(all_precedences) - set(precedences):
+            assert (empty_directory / precedence).read_text() == cleandoc(
+                """
+                # SPDX-FileCopyrightText: 2018 Alice
+
+                pass
+                """
+            )
+
+    def test_skip_precedence_and_skip_global_mutex(self, fake_repository):
+        """--skip-precedence is mutually exclusive with --skip-global."""
+        simple_file = fake_repository / "foo.py"
+        simple_file.write_text("pass")
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "annotate",
+                "--copyright",
+                "Jane Doe",
+                "--skip-global",
+                "--skip-precedence",
+                "aggregate",
+                "foo.py",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "mutually exclusive with" in result.output
 
     def test_template_simple(
         self, fake_repository, mock_date_today, template_simple_source
@@ -2117,9 +2274,8 @@ class TestMultipleLicense:
         assert result.exit_code == 0
         assert simple_file.read_text() == expected
 
-    def test_replace_license_and_no_replace(self, fake_repository):
-        """Ensure a usage error is created when both --replace-license and
-        --no-replace are used."""
+    def test_replace_license_no_replace_mutex(self, fake_repository):
+        """--replace-license and --no-replace are mutually exclusive."""
         simple_file = fake_repository / "foo.py"
         simple_file.write_text(
             cleandoc(
@@ -2145,11 +2301,8 @@ class TestMultipleLicense:
             ],
         )
 
-        assert result.exit_code > 0
-        assert (
-            "Error: '--replace-license' and"
-            " '--no-replace' cannot be used together."
-        ) in result.output
+        assert result.exit_code != 0
+        assert "mutually exclusive with" in result.output
 
     def test_replace_license_and_dot_license(self, fake_repository):
         """Test --replace-license works with --force-dot-license"""

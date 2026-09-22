@@ -601,7 +601,10 @@ def subproject_repository(fake_repository: Path) -> Path:
 @pytest.fixture(scope="session")
 def reuse_dep5():
     """Create a ReuseDep5 object."""
-    return ReuseDep5.from_file(RESOURCES_DIRECTORY / "dep5")
+    return ReuseDep5.from_file(
+        RESOURCES_DIRECTORY / "dep5",
+        RESOURCES_DIRECTORY,
+    )
 
 
 @pytest.fixture()

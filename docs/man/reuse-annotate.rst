@@ -134,6 +134,10 @@ Other options
   Instead of replacing the first header in the file which contains copyright and
   licensing information, keep it and create a new header at the top.
 
+.. option:: --replace-license
+
+  Replace existing SPDX-License-Identifiers, instead of adding onto them.
+
 .. option:: --force-dot-license
 
   Always write a .license file instead of trying to write into the file itself.
@@ -148,9 +152,18 @@ Other options
   Instead of aborting when a file extension does not have an associated comment
   style, skip those files.
 
-.. option:: --replace-license
+.. option:: --skip-existing
 
-  Replace existing SPDX-License-Identifiers, instead of adding onto them.
+  Skip a file if there is already REUSE information inside of it.
+
+.. option:: --skip-global
+
+  Skip a file if it is covered by REUSE.toml or .reuse/dep5.
+
+.. option:: --skip-precedence {aggregate|closest|override}
+
+  Skip a file if it is covered by REUSE.toml or .reuse/dep5, and the precedence
+  of this coverage is the defined precedence. Repeatable.
 
 .. option:: --help
 

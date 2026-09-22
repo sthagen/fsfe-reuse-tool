@@ -162,7 +162,7 @@ reading the 'Changed' section of this change log to see what changed.
 - The 'Bad licenses' criterion in `reuse lint` previously searched for bad
   licenses in every single file. Now, only bad licenses in `LICENSES/` are
   detected, which is more in line with the documentation. (#1240)
-- The behaviour of the `--year` option to `reuse annotate`is now different.
+- The behaviour of the `--year` option to `reuse annotate` is now different.
   Previously, you could define `--year <year>` multiple times. Now you can only
   do so once, but the value may be a string containing multiple years or a range
   of years. (#1145)

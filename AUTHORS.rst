@@ -167,3 +167,4 @@ Contributors
 - Martin Sladecek <martin.sladecek@gmail.com>
 - Lily A.N. <minekpo1@murena.io>
 - Benjamin Cabé <benjamin@zephyrproject.org>
+- Jan Gietzel <jan.gietzel@gmail.com>

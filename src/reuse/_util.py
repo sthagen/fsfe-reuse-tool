@@ -19,7 +19,7 @@ import os
 import subprocess
 from hashlib import sha1
 from inspect import cleandoc
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import IO, Any
 
 from .types import StrPath
@@ -135,7 +135,7 @@ def _add_plus_to_identifier(spdx_identifier: str) -> str:
     return f"{spdx_identifier}+"
 
 
-def relative_from_root(path: Path, root: Path) -> Path:
+def relative_from_root(path: PurePath, root: PurePath) -> Path:
     """A helper function to get *path* relative to *root*."""
     path_parts = path.parts
     root_parts = root.parts

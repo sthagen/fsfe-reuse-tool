@@ -9,6 +9,7 @@
 # SPDX-FileCopyrightText: 2022 Florian Snow <florian@familysnow.net>
 # SPDX-FileCopyrightText: 2022 Yaman Qalieh
 # SPDX-FileCopyrightText: 2024 Rivos Inc.
+# SPDX-FileCopyrightText: 2025 Jan Gietzel <jan.gietzel@gmail.com>
 # SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
 # SPDX-FileCopyrightText: 2026 Lily A.N. <minekpo1@murena.io>
 #
@@ -22,7 +23,7 @@ import os
 import sys
 from collections.abc import Collection, Iterable, Sequence
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 import click
 from jinja2 import Environment, FileSystemLoader, Template
@@ -250,19 +251,6 @@ def get_years(year: str | None, exclude_year: bool) -> tuple[YearRange, ...]:
     return result
 
 
-def verify_no_replace_nand_replace_license(
-    no_replace: bool, replace_license: bool
-) -> None:
-    """
-    warn the user if both --no-replace and --replace-license are provided
-      (--no-replace overrides --replace-license)
-    """
-    if no_replace and replace_license:
-        raise click.UsageError(
-            _("'--replace-license' and '--no-replace' cannot be used together.")
-        )
-
-
 def get_reuse_info(
     copyrights: Collection[str],
     licenses: Collection[SpdxExpression],
@@ -296,6 +284,8 @@ _STYLE_MUTEX = [
     "fallback_dot_license",
     "skip_unrecognised",
 ]
+_REPLACE_MUTEX = ["no_replace", "replace_license"]
+_SKIP_GLOBAL_MUTEX = ["skip_global", "skip_precedence"]
 
 _HELP = (
     _("Add copyright and licensing into the headers of files.")
@@ -426,8 +416,20 @@ _HELP = (
 )
 @click.option(
     "--no-replace",
+    cls=MutexOption,
+    mutually_exclusive=_REPLACE_MUTEX,
     is_flag=True,
     help=_("Do not replace the first header in the file; just add a new one."),
+)
+@click.option(
+    "--replace-license",
+    cls=MutexOption,
+    mutually_exclusive=_REPLACE_MUTEX,
+    is_flag=True,
+    help=_(
+        "Replace existing SPDX-License-Identifiers,"
+        " instead of adding onto them."
+    ),
 )
 @click.option(
     "--force-dot-license",
@@ -462,11 +464,21 @@ _HELP = (
     help=_("Skip files that already contain REUSE information."),
 )
 @click.option(
-    "--replace-license",
+    "--skip-global",
+    cls=MutexOption,
+    mutually_exclusive=_SKIP_GLOBAL_MUTEX,
     is_flag=True,
+    help=_("Skip files that are covered by REUSE.toml or .reuse/dep5."),
+)
+@click.option(
+    "--skip-precedence",
+    cls=MutexOption,
+    mutually_exclusive=_SKIP_GLOBAL_MUTEX,
+    type=click.Choice(["aggregate", "closest", "override"]),
+    multiple=True,
     help=_(
-        "Replace existing SPDX-License-Identifiers, "
-        "instead of adding onto them."
+        "Skip files that are covered by REUSE.toml or .reuse/dep5 with a"
+        " specific precedence level, repeatable."
     ),
 )
 @click.argument(
@@ -492,11 +504,13 @@ def annotate(
     multi_line: bool,
     recursive: bool,
     no_replace: bool,
+    replace_license: bool,
     force_dot_license: bool,
     fallback_dot_license: bool,
     skip_unrecognised: bool,
     skip_existing: bool,
-    replace_license: bool,
+    skip_global: bool,
+    skip_precedence: Collection[Literal["aggregate", "closest", "override"]],
     paths: Sequence[Path],
 ) -> None:
     # pylint: disable=too-many-arguments,too-many-locals,missing-function-docstring
@@ -514,7 +528,6 @@ def annotate(
     reuse_info = get_reuse_info(
         copyrights, licenses, contributors, copyright_prefix, years_tuple
     )
-    verify_no_replace_nand_replace_license(no_replace, replace_license)
 
     result = 0
     for path in paths:
@@ -544,10 +557,16 @@ def annotate(
             template=template,
             template_is_commented=commented,
             style=style,
+            global_licensing=project.global_licensing,
             encoding=encoding,
             newline=newline,
             force_multi=multi_line,
             skip_existing=skip_existing,
+            skip_global_precedences=(
+                ["aggregate", "closest", "override"]
+                if skip_global
+                else skip_precedence
+            ),
             skip_unrecognised=skip_unrecognised,
             fallback_dot_license=fallback_dot_license,
             merge_copyrights=merge_copyrights,

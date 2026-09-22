@@ -94,7 +94,8 @@ class _MultiprocessingContainer:
         if self.has_dep5 and not self.reuse_dep5:
             with contextlib.suppress(Exception):
                 self.reuse_dep5 = ReuseDep5.from_file(
-                    self.project.root / ".reuse/dep5"
+                    self.project.root / ".reuse/dep5",
+                    self.project.root,
                 )
                 self.project.global_licensing = self.reuse_dep5
         # pylint: disable=broad-except

@@ -1,1 +1,2 @@
-- Added several Starlark file types for Bazel/Buck2/Copybara: `.bxl`, `BUCK`, `BUILD`, `.sky`, `.star` (#1340)
+- Added several Starlark file types for Bazel/Buck2/Copybara: `.bxl`, `BUCK`,
+  `BUILD`, `.sky`, `.star` (#1340)
