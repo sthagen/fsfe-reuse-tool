@@ -13,6 +13,9 @@ on:
       - "src/reuse/**.py"
       - ".forgejo/workflows/gettext.yaml"
 
+concurrency:
+  cancel-in-progress: false
+
 jobs:
   create-pot:
     runs-on: debian-trixie
@@ -27,9 +30,14 @@ jobs:
         run: poetry install --no-interaction --only main
       - name: Lock Weblate
         run: |
+          wlc --url https://hosted.weblate.org/api/ --key ${{secrets.WEBLATE_KEY }} commit fsfe/reuse-tool
           wlc --url https://hosted.weblate.org/api/ --key ${{secrets.WEBLATE_KEY }} lock fsfe/reuse-tool
       - name: Push changes from Weblate to upstream repository
         run: |
+          # This step sometimes fails with error:
+          # Error: HTTP error 423: Locked {'detail': 'Another repository operation is already in progress.'}
+          # Presumably the weblate repository is still busy locking. The sleep hopefully fixes this.
+          sleep 5
           wlc --url https://hosted.weblate.org/api/ --key ${{secrets.WEBLATE_KEY }} push fsfe/reuse-tool
       - name: Pull Weblate translations
         run: git pull origin main
@@ -51,6 +59,6 @@ jobs:
           git commit -m "Update reuse.pot"
           git push origin HEAD:main
       - name: Unlock Weblate
+        if: always()
         run: |
-          wlc --url https://hosted.weblate.org/api/ --key ${{ secrets.WEBLATE_KEY }} pull fsfe/reuse-tool
           wlc --url https://hosted.weblate.org/api/ --key ${{ secrets.WEBLATE_KEY }} unlock fsfe/reuse-tool
